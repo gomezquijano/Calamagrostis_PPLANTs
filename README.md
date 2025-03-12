@@ -2,7 +2,7 @@
 
 ## Cryptic genome-wide SNP diversity in natural and cultivated accessions informs restoration of three *Calamagrostis* species from the Northwest Territories of Canada
 
-**Authors:** Maria Jose Gomez Quijano^1, Yihan Wu, Claire Smith, Adriana Villalobos-Lopez, Pippa Secombe-Hett, Nathan Campbell, Zhengxin Sun, Robert I. Colautti 
+**Authors:** Maria Jose Gomez Quijano, Yihan Wu, Claire Smith, Adriana Villalobos-Lopez, Pippa Secombe-Hett, Nathan Campbell, Zhengxin Sun, Robert I. Colautti 
 
 Biology Department, Queen’s University, Kingston, ON, K7L 3N6 Canada
 Aurora Research Institute, Inuvik, NT, X0E 0T0 Canada
