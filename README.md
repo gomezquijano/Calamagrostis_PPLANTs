@@ -4,9 +4,9 @@
 
 **Authors:** Maria Jose Gomez Quijano, Yihan Wu, Claire Smith, Adriana Villalobos-Lopez, Pippa Secombe-Hett, Nathan Campbell, Zhengxin Sun, Robert I. Colautti 
 
-Biology Department, Queen’s University, Kingston, ON, K7L 3N6 Canada
-Aurora Research Institute, Inuvik, NT, X0E 0T0 Canada
-GTseek, Twin Falls, ID, 83301 USA
+1. Biology Department, Queen’s University, Kingston, ON, K7L 3N6 Canada
+2. Aurora Research Institute, Inuvik, NT, X0E 0T0 Canada
+3. GTseek, Twin Falls, ID, 83301 USA
 
 
 This repositopry contains the data files for the manuscript submitted to [**insert info here**]
