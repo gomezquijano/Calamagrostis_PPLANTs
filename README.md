@@ -15,9 +15,11 @@ This repositopry contains the data files for the manuscript submitted to [**inse
 The files contain:
 
 1. Metadata for sampled populations
-2. Raw RAD-Seq data
-3. RAD-Seq analysis pipeline
-4. GT-seq primer and probes
-5. Raw GT-seq data
-6. Modified GT-seq genotyping scripts
-7. GT-seq analysis pipeline
+2. ddRAD-seq
+  a. Raw ddRAD-Seq data
+  b. ddRAD-Seq analysis pipeline
+3.GT-seq
+  a. GT-seq primer and probes
+  b. Raw GT-seq data
+  c. Modified GT-seq genotyping scripts
+  d. GT-seq analysis pipeline
