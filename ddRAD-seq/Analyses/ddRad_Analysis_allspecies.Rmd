@@ -36,12 +36,12 @@ library(dartR.base)
 ```
 
 ```{r}
-calam_snps <- vcfR::read.vcfR("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/ddRAD-24/vcf/final.calamagrostis.snps.recode.vcf")
+calam_snps <- vcfR::read.vcfR("final.calamagrostis.snps.recode.vcf")
 
 calam_gen <- vcfR::vcfR2genind(calam_snps)
 
 #population information
-ind_pops <- read.csv("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/ddRAD-24/info/calam_info.csv", header = T)
+ind_pops <- read.csv("calam_info.csv", header = T)
 ```
 
 ## Manipulating the genlight object
