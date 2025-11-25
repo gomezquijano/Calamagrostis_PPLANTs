@@ -1,0 +1,276 @@
+---
+title: "Calamagrostis ddRAD"
+author: "MJGQ"
+date: "2024-07-04"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Calamagrostis ddRAD Analysis
+
+This is a complete analysis pipeline of genetic structure of three species of *Calamagrostis* collected from the North West Territories
+
+## Loading data
+
+```{r, include=FALSE}
+library(vcfR)
+library(adegenet)
+library(hierfstat)
+library(pegas)
+library(ggplot2)
+library(mapdata)
+library(ggpolypath)
+library(ape)
+library(poppr)
+library(tibble)
+library(dplyr)
+library(ggpubr)
+library(LEA)
+library(tidyr)
+library(dartR.base)
+```
+
+```{r}
+calam_snps <- vcfR::read.vcfR("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/ddRAD-24/vcf/final.calamagrostis.snps.recode.vcf")
+
+calam_gen <- vcfR::vcfR2genind(calam_snps)
+
+#population information
+ind_pops <- read.csv("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/ddRAD-24/info/calam_info.csv", header = T)
+```
+
+## Manipulating the genlight object
+
+We have to add the species information to the genid object.
+
+```{r}
+
+indNames(calam_gen) <- dimnames(extract.gt(calam_snps))[[2]]
+calam_gen$pop <- factor(ind_pops$species)
+
+ind_pops <- ind_pops[ind_pops$sample_no %in% indNames(calam_gen),]
+```
+
+let's look at what species we will be working with:
+
+In this dataset we have also a couple of commercial individuals, we will eventually remove them but for now I want to leave them here to see how they look on a PCA
+
+```{r}
+knitr::kable(table(ind_pops$species), col.names = c("Species", "Number of Individuals"))
+```
+
+## Adding strata to the genid object
+
+```{r}
+strata(calam_gen) 
+#creating a strata df to append to the genid object
+strata_df <- ind_pops
+strata_df$range <- ifelse(strata_df$lat > 65, "North", "South")
+strata(calam_gen) <- strata_df
+```
+
+One thing we need to do is remove commercial samples from here and unknown species.
+
+```{r}
+removeInd <- c("24PLC", "86GC", "531C", "59WC")
+calam_gen_clean <- calam_gen[!indNames(calam_gen) %in% removeInd]
+ind_pops_clean <- ind_pops %>% filter(!sample_no %in% removeInd)
+
+calam_gen_clean$pop <- factor(ind_pops_clean$species)
+
+strata_df_clean <- ind_pops_clean
+strata_df_clean$range <- ifelse(strata_df_clean$lat > 65, "North", "South")
+strata(calam_gen_clean) <- strata_df_clean
+
+```
+
+## PCA
+
+```{r fig.height=4, fig.width=6}
+x.cal <- tab(calam_gen_clean, freq=TRUE, NA.method="mean")
+pca.cal <- dudi.pca(x.cal, center=TRUE, scale=FALSE)
+pca.cal$eig
+pca_plot <-  calam_gen_clean$strata
+pca_plot$PC1 <- pca.cal$li[,1] 
+pca_plot$PC2 <- pca.cal$li[,2] 
+head(pca_plot)
+
+pca_plot$species <- factor(pca_plot$species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa"))
+
+eig.perc <- 100*pca.cal$eig/sum(pca.cal$eig)
+head(eig.perc)
+
+color <- c( "#31688e","#440154", "#35b779") 
+
+all_pca_plot <- ggplot(pca_plot, aes(x=PC1, y=PC2, fill = species))+
+  theme_pubr()+ geom_point(color = "black", pch = 21, size = 9) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (23.34%)") +
+  ylab("PC2 (13.5%)")   + 
+  scale_fill_manual(values = color) 
+
+
+
+all_pca_plot 
+
+#ggsave("25rad_pca1.pdf", path = "./../Figures/", plot = all_pca_plot, dpi =320, width = 6, height = 4 )
+```
+
+## Structure using LEA
+
+I am trying to avoid using other programs that are not r to make the analysis as reproducible as possible converting our genlight to geno and lfmm
+
+```{r}
+setAs("genind", "genlight", function(from) {
+  df <- tab(from, NA.method = "mean")
+  gl <- new("genlight", df)
+  pop(gl) <- pop(from)
+  indNames(gl) <- indNames(from)
+  gl
+})
+```
+
+```{r}
+
+calam_gen_clean_genlight <- as(calam_gen_clean, "genlight")
+gl2geno(calam_gen_clean_genlight, outfile = "calam_LEA", outpath = "./", verbose = NULL)
+
+```
+
+We will run snmf using the geno file
+
+```{r}
+calm_snmf <- snmf(input.file = "./calam_LEA.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                    iterations = 1000,
+                   repetitions = 5,
+                   project = "new",
+                   alpha = 50
+                  )
+#here we are looking at the cross entropy
+plot(calm_snmf, cex = 1.2, col = "lightblue", pch = 19)
+```
+
+```{r}
+ce <-  cross.entropy(calm_snmf, K = 3)
+ce
+```
+
+```{r}
+q_mat <- LEA::Q(calm_snmf, K = 3, run = 5) 
+
+colnames(q_mat) <- paste0("P", 1:3)
+
+head(q_mat)
+ 
+q_df <- q_mat %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = ind_pops_clean$sample_no,
+         Species = ind_pops_clean$species,
+         lat = ind_pops_clean$lat,
+         order = ind_pops_clean$order)
+q_df
+ library(tidyr)
+q_df_long <- q_df %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+
+
+q_df_order <- q_df_long %>% 
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange(order) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+q_df_order
+```
+
+```{r}
+
+q_df_order$Species <- factor(q_df_order$Species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa"))
+color <- c( "#440154", "#31688e","#35b779") 
+
+plot1 <-   ggplot(data = q_df_order) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color) +
+  #scale_fill_viridis_d() +
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=12),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + 
+  geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(10.5,17.5,27.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 5.5, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 14, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 22.5, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic")
+  
+
+plot1
+
+ggsave("25rad_struct1.pdf", path = "./../Figures/", plot = plot1, dpi =320, width = 10, height = 4.5 )
+
+
+```
+
+## Diversity
+
+we need now to turn our data into a genid object
+
+```{r}
+calam_genid_clean <- (calam_gen_clean) 
+#we have to reattach our strata and 
+strata(calam_genid_clean) <- strata_df_clean
+
+```
+
+We can now calculate summary stats but we have to first convert it to hierfstat
+
+```{r}
+calam_hier <- genind2hierfstat(calam_genid_clean)
+
+# assume diploidy here
+basic_stats <- basic.stats(calam_hier, diploid = T, digits = 2)
+
+stat_tbl <- as.data.frame(table(calam_genid_clean$pop))
+names(stat_tbl) <- c("Species", "n")
+stat_tbl$Hs <- colMeans(basic_stats$Hs, na.rm = T)
+stat_tbl$Ho <- colMeans(basic_stats$Ho, na.rm = T)
+stat_tbl$Fis <- colMeans(basic_stats$Fis, na.rm = T)
+
+knitr::kable(stat_tbl)
+
+```
+
+## FST
+
+```{r}
+wc(calam_hier)
+```
+
+```{r}
+spec.matFst <- pairwise.neifst(calam_hier)
+spec.matFst
+```
+
+Let's create a little tree?
+
+```{r}
+color.tree <- c("#440154", "#31688e","#35b779" )
+spec.tree <- nj(spec.matFst)
+annot <- round(spec.tree$edge.length,2)
+plot(spec.tree, type="unr", tip.col= "black", font=1.8,)
+
+```
