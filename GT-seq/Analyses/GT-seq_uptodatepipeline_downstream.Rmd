@@ -46,9 +46,9 @@ library(forcats)
 ## Loading Genotypes
 
 ```{r}
-#setwd("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/GTseq24/Nate_pipeline/")
 
-DatFull <- read.csv("./pipeline_edited/CompiledGenosV2/Compiled_Genotypes_0924_V4_N.csv", header = T)
+DatFull <- read.csv("Compiled_Genotypes_0924_V4_N.csv", header = T)
+
 #this is the numeric version of the genotypes of onaly the individuals used for the ddrad (no hybrids or miss IDs)
 DatFull <- DatFull[-c(2:6)] #removing some rows we do not need
 DatFull[DatFull == "0"] <- NA #taking 0 which are missing genotypes into missing data
@@ -58,7 +58,7 @@ head(DatFull)
 ## Adding species information to the genotype data:
 
 ```{r}
-Species <- read.csv("../Stacks/sample.info.one.csv", header = T)
+Species <- read.csv("sample.info.one.csv", header = T)
 Species <- Species %>% dplyr::select(!num)
 
 DatFull <- right_join(Species,DatFull, by = "Sample")
@@ -113,7 +113,7 @@ head(PolyDatMissIndFull)
 ## Imputing Genotypes for the Validation Dataset and Wild dataset
 
 ```{r}
-Sub <- read.csv("./pipeline_edited/CompiledGenosV2/IDs_for_subset.csv")
+Sub <- read.csv("IDs_for_subset.csv")
 validation <- PolyDatMissIndFull %>% right_join(Sub, by = "Sample") #validation
 
 wild <- PolyDatMissIndFull%>% filter(origin != "Commercial") #wild
