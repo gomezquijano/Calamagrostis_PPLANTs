@@ -1,0 +1,32 @@
+﻿ID,sample_no,species,lat,long,loc_town,loc_terr,region,is_commercial,pop,order,pop_spec,Label
+1,200712C,Calamagrostis canadensis,60.33197,-123.31073,Liard,NT,Deh Cho,FALSE,LD,1,LD_Cc,
+2,6149C,Calamagrostis stricta ssp inexpansa,66.24059,-128.63382,Fort Good Hope,NT,Sahtu,FALSE,FGH,25,FGH_Cs,
+3,6061C,Calamagrostis canadensis,69.11643,-134.21138,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,9,MDU_Cc,661C
+4,6073C,Calamagrostis stricta ssp inexpansa,68.59259,-133.60715,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,27,MDU_Cs,673C
+5,6007C,Calamagrostis canadensis,68.35995,-133.69868,Inuvik,NT,"ISR, GSA",FALSE,IK,4,IK_Cc,
+6,6090C,Calamagrostis canadensis,68.3623,-133.75005,Inuvik,NT,"ISR, GSA",FALSE,IK,6,IK_Cc,
+7,6099C,Calamagrostis canadensis,68.35995,-133.69868,Inuvik,NT,"ISR, GSA",FALSE,IK,5,IK_Cc,
+8,200724C,Calamagrostis stricta ssp inexpansa,61.40034,-120.58364,Liard,NT,Deh Cho,FALSE,LD,23,LD_Cs,
+9,200788C,Calamagrostis canadensis,61.35377,-113.41176,Fort Resolution,NT,South Slave,FALSE,FR,3,FR_Cc,
+10,24PLC,Calamagrostis canadensis 'sourdough',NA,NA,NA,NA,NA,TRUE,NA,13,PLC,
+11,6190C,Calamagrostis stricta ssp inexpansa,62.76939,-116.06536,Edzo,NT,North Slave,FALSE,EZ,24,EZ_Cs,
+12,6194C,Calamagrostis purpurascens,62.67427,-116.16532,Edzo,NT,North Slave,FALSE,EZ,17,EZ_Cp,6194C
+13,6218C,Calamagrostis purpurascens,62.77522,-116.06185,Rae Edzo,NT,North Slave,FALSE,REZ,18,REZ_Cp,6218C
+14,6028C,Calamagrostis stricta ssp inexpansa,68.95895,-133.83936,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,30,MDU_Cs,
+15,6055C,Calamagrostis canadensis,69.18349,-134.84167,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,10,MDU_Cc,
+16,200776C,Calamagrostis canadensis,61.26636,-113.58418,Fort Resolution,NT,South Slave,FALSE,FR,2,FR_Cc,
+17,86GC,Calamagrostis canadensis,NA,NA,NA,NA,NA,TRUE,NA,11,GC,
+18,531C,Calamagrostis sp,68.3623,-133.75005,Inuvik,NT,"ISR, GSA",FALSE,IK,21,IK,
+19,6150C,Calamagrostis purpurascens,66.24059,-128.63382,Fort Good Hope,NT,Sahtu,FALSE,FGH,19,FGH_Cp,
+20,6022C,Calamagrostis stricta ssp inexpansa,68.95557,-133.83975,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,28,MDU_Cs,
+21,6069C,Calamagrostis canadensis,68.60812,-133.58481,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,8,MDU_Cc,669C
+22,200739C,Calamagrostis purpurascens,60.73165,-115.26965,Hay River,NT,South Slave,FALSE,HR,14,HR_Cp,
+23,6116C,Calamagrostis stricta ssp inexpansa,NA,NA,Inuvik,NT,"ISR, GSA",FALSE,IK,31,IK_Cs,
+24,6093C,Calamagrostis purpurascens,68.30271,-133.53157,Inuvik,NT,"ISR, GSA",FALSE,IK,20,IK_Cp,
+25,59WC,Calamagrostis canadensis,NA,NA,NA,NA,NA,TRUE,NA,12,WC,
+26,200750C,Calamagrostis stricta ssp inexpansa,61.03348,-113.6888,Fort Resolution,NT,South Slave,FALSE,FR,22,FR_Cs,
+27,6087C,Calamagrostis canadensis,68.51524,-133.65129,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,7,MDU_Cc,
+28,6017C,Calamagrostis stricta ssp inexpansa,68.95812,-133.83787,Mackenzie Delta/uplands,NT,ISR,FALSE,MDU,29,MDU_Cs,
+29,200762C,Calamagrostis purpurascens,60.96264,-114.15333,Fort Resolution,NT,South Slave,FALSE,FR,15,FR_Cp,
+30,6136C,Calamagrostis stricta ssp inexpansa,66.29205,-128.62532,Fort Good Hope,NT,Sahtu,FALSE,FGH,26,FGH_Cs,6136C
+31,6211C,Calamagrostis purpurascens,62.61879,-116.26239,Rae,NT,North Slave,FALSE,RA,16,RA_Cp,
