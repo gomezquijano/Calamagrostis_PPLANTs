@@ -1,4 +1,4 @@
-<img width="468" height="118" alt="image" src="https://github.com/user-attachments/assets/21d0485b-ea42-455c-81b8-c2f9c0478686" /># Data Repository
+
 
 ## Genome-wide SNP diversity in natural and cultivated accessions informs restoration of three *Calamagrostis* species from the Northwest Territories of Canada
 
