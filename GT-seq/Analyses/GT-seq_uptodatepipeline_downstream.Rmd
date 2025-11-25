@@ -1,0 +1,1628 @@
+---
+title: "06.25.GTseq.Pipeline"
+author: "MJGQ"
+date: "2025-06-24"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Species Prediction and Population Structure Pipeline for Three Species of *Calamagrostis* in Canada's Northwest Territories. 
+
+## Required Libraries
+```{r}
+#options(repos = c(CRAN = "https://cloud.r-project.org")) 
+
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+#BiocManager::install("LEA")
+#BiocManager::install("SNPRelate")
+#BiocManager::install("snpStats")
+
+```
+
+
+```{r, echo=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggpubr)
+library(adegenet)
+library(randomForest)  
+library(DA)
+library(dartRverse)
+library(dartR.base)
+library(LEA)
+library(tidyr)
+library(hierfstat)
+library(RColorBrewer)
+library(ape)
+library(vegan)
+library(poppr)
+library(forcats)
+```
+
+## Loading Genotypes
+
+```{r}
+#setwd("~/../../Volumes/Gomez_Quijano_2021/PhD_Queens/PPLANTs/GTseq24/Nate_pipeline/")
+
+DatFull <- read.csv("./pipeline_edited/CompiledGenosV2/Compiled_Genotypes_0924_V4_N.csv", header = T)
+#this is the numeric version of the genotypes of onaly the individuals used for the ddrad (no hybrids or miss IDs)
+DatFull <- DatFull[-c(2:6)] #removing some rows we do not need
+DatFull[DatFull == "0"] <- NA #taking 0 which are missing genotypes into missing data
+head(DatFull)
+```
+
+## Adding species information to the genotype data:
+
+```{r}
+Species <- read.csv("../Stacks/sample.info.one.csv", header = T)
+Species <- Species %>% dplyr::select(!num)
+
+DatFull <- right_join(Species,DatFull, by = "Sample")
+head(DatFull)
+```
+
+## Filtering low quality loci and low quality individuals:
+
+```{r}
+###removing loci with more than 50% NAs.###
+thresholdInd <- 0.5
+# Remove rows where more than 50% of the entries are NA
+DatMissFull <- DatFull[,sapply(DatFull, function(x) mean(is.na(x)) <= thresholdInd), ]
+
+head(DatMissFull)
+```
+
+```{r}
+####Removing non polymorphic loci by removing columns with only one factor level.####
+#this allows to remove any fixed loci, where all species have the same genotype.
+
+#turning each genotype into a factor
+DatMissFull <- DatMissFull %>% mutate_if(is.integer, as.factor)
+
+#str(DatMiss)
+#removing columns with only one level
+DatMissFull <- droplevels(DatMissFull)
+PolyDatMissFull <- DatMissFull[,sapply(DatMissFull, function(x) !is.factor(x) ||  nlevels(x) > 1)]
+PolyDatMissFull <- droplevels(PolyDatMissFull)
+#str(PolyDatMiss)
+#checking columns with unique values, we want columns with at least two values:
+head(PolyDatMissFull)
+
+#IDs
+IDsFull <- DatFull %>% dplyr::select(1:8)
+
+```
+
+```{r}
+####Now lets remove individuals that don't have genotypes called####
+
+thresholdInd <- 0.5
+# Remove rows where more than 50% of the entries are NA
+PolyDatMissIndFull <- PolyDatMissFull[apply(PolyDatMissFull, 1, function(x) mean(is.na(x)) <= thresholdInd), ]
+# View the filtered data frame
+head(PolyDatMissIndFull)
+```
+
+
+# Validation and Wild Dataset Analyses: 
+
+## Imputing Genotypes for the Validation Dataset and Wild dataset
+
+```{r}
+Sub <- read.csv("./pipeline_edited/CompiledGenosV2/IDs_for_subset.csv")
+validation <- PolyDatMissIndFull %>% right_join(Sub, by = "Sample") #validation
+
+wild <- PolyDatMissIndFull%>% filter(origin != "Commercial") #wild
+```
+
+```{r}
+#we need a data frame of only the genotypes and Species name
+#validation
+validation_num <- validation %>% dplyr::select(!4:8) %>% dplyr::select(!ID) %>% dplyr::select(!Sample)%>% mutate_if(is.character, as.factor)
+
+head(validation_num) 
+
+#wild
+wild_num <- wild %>% dplyr::select(!4:8) %>% dplyr::select(!ID) %>% dplyr::select(!Sample)%>% mutate_if(is.character, as.factor)
+
+```
+
+```{r}
+#Imputing genotypes by species
+
+ImputeColsValidation<-names(validation_num[,colSums(is.na(validation_num))>0])
+head(ImputeColsValidation)
+
+ImputeColsWild<-names(wild_num[,colSums(is.na(wild_num))>0])
+head(ImputeColsWild)
+```
+
+```{r}
+## Impute values using random forest model
+#For categorical predictors, the imputed value is the category with the largest average proximity.
+#I used to impute by species but I think imputing by "collection" number/population is much better
+set.seed(123)
+ImpVals_validation<-rfImpute(x=validation_num,
+                  y=validation_num$Species,
+                  iter=10,ntree=5000) 
+set.seed(111)
+ImpVals_wild<-rfImpute(x=wild_num,
+                  y=wild_num$Species,
+                  iter=10,ntree=5000) 
+```
+
+```{r}
+sum(is.na(ImpVals_validation)) #great we have imputed all the values
+sum(is.na(ImpVals_wild)) #great we have imputed all the values
+ 
+ImpVals_validation <- droplevels(ImpVals_validation)
+ImpVals_wild <- droplevels(ImpVals_wild)
+
+#ImpVals_validation <- ImpVals_validation[,sapply(ImpVals_validation, function(x) nlevels(x) > 1)]
+#ImpVals_wild <- ImpVals_wild[,sapply(ImpVals_wild, function(x) nlevels(x) > 1)]
+
+ImpVals_validation <- ImpVals_validation %>% dplyr::select(,3:259)%>%
+  mutate_if(is.factor, as.character)%>% 
+  mutate_if(is.character, as.numeric)
+
+ImpVals_wild <- ImpVals_wild %>% dplyr::select(,3:259)%>%
+  mutate_if(is.factor, as.character)%>% 
+  mutate_if(is.character, as.numeric)
+```
+
+
+## Turning the datasets into GENID objects:
+
+```{r}
+### Converting data frame into a GENID ###
+
+#subset
+geno_validation <- as.matrix(ImpVals_validation)
+rownames(geno_validation) <- validation$ID
+validation_genid<- df2genind(geno_validation, sep="", ncode = 1, loc.names = colnames(geno_validation), ind.names = rownames(geno_validation), pop = as.factor(validation$Species))
+
+#wild
+geno_wild <- (ImpVals_wild)
+rownames(geno_wild) <- wild$ID
+wild_genid<- df2genind(geno_wild, sep="", ncode = 1, loc.names = colnames(geno_wild), ind.names = rownames(geno_wild), pop = as.factor(wild$Species))
+```
+
+```{r}
+#adding strata validation
+strata_validation <- validation[1:8]
+strata_validation$range <- ifelse(strata_validation$lat > 65, "North", "South")
+strata(validation_genid) <- strata_validation
+
+#adding strata wild
+strata_wild <- wild[1:8]
+strata_wild$range <- ifelse(strata_wild$lat > 65, "North", "South")
+strata(wild_genid) <- strata_wild
+```
+
+## Principal Component Analysis
+
+
+### Validation
+
+```{r fig.height=4, fig.width=6}
+validation.cal <- tab(validation_genid, freq=TRUE, NA.method="mean")
+pca.cal.validation <- dudi.pca(validation.cal, center=TRUE, scale=F, scannf = FALSE, nf = 2 )
+pca.cal.validation$eig
+pca_plot.validation <-  strata_validation
+pca_plot.validation$PC1 <- pca.cal.validation$li[,1] 
+pca_plot.validation$PC2 <- pca.cal.validation$li[,2] 
+head(pca_plot.validation)
+str(pca_plot.validation)
+
+pca_plot.validation$Species <- factor(pca_plot.validation$Species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa"))
+
+eig.perc.validation <- 100*pca.cal.validation$eig/sum(pca.cal.validation$eig)
+head(eig.perc.validation)
+
+color <- c("#31688e","#440154", "#35b779") 
+
+validation_pca_plot <- ggplot(pca_plot.validation, aes(x=PC1, y=PC2, 
+                                         fill = Species)) + 
+                         theme_pubr()+ geom_point(color = "black", pch = 21, size = 9) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (32.9%)") +
+  ylab("PC2 (18.3%)")   + 
+  scale_fill_manual(values = color) + stat_ellipse() + stat_ellipse(geom = "polygon", alpha = 0.2)
+
+
+
+validation_pca_plot 
+
+#ggsave("25gt_validation_pca1.pdf", path = "./../../Figures/", plot = validation_pca_plot, dpi =320, width = 6, height = 4 )
+
+```
+
+### Wild 
+
+```{r fig.height=4, fig.width=6}
+#wild
+wild.cal <- tab(wild_genid, freq=TRUE, NA.method="mean")
+pca.cal.wild <- dudi.pca(wild.cal, center=TRUE, scale=FALSE, scannf = FALSE, nf = 2)
+pca.cal.wild$eig
+pca_plot.wild <-  strata_wild
+pca_plot.wild$PC1 <- pca.cal.wild$li[,1] 
+pca_plot.wild$PC2 <- pca.cal.wild$li[,2] 
+head(pca_plot.wild)
+str(pca_plot.wild)
+
+pca_plot.wild$Species <- factor(pca_plot.wild$Species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa", "Calamagrostis sp"))
+
+eig.perc.wild <- 100*pca.cal.wild$eig/sum(pca.cal.wild$eig)
+head(eig.perc.wild)
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+wild_pca_plot <- ggplot(pca_plot.wild, aes(x=PC1, y=PC2, fill = Species)) + theme_pubr()+
+  geom_point(color = "black", pch = 21, size = 9) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (20.6%)") +
+  ylab("PC2 (16.5%)")   + 
+  scale_fill_manual(values = color1) +
+  ylim(-5,5)  
+
+
+wild_pca_plot 
+
+#ggsave("25gt_wild_pca1.pdf", path = "./../../Figures/", plot = wild_pca_plot, dpi =320, width = 6, height = 4 )
+```
+
+## Local Fisher Discriminant analysis (LFDA):
+
+### Training with Validation
+
+```{r fig.height=4, fig.width=6}
+
+lfda.train <- NA
+lfda.train <- DA::LFDA(ImpVals_validation,validation$Species,r=2,tol=1E-4, knn = 2, CV = T)
+
+
+#creating a dataframe with the coordinates of the LFDA 
+lfda_plot.train <- validation %>% dplyr::select(1:8)
+lfda_plot.train$Predicted <- as.factor(lfda.train$bayes_assigment$class)
+lfda_plot.train$LFDA1 <- lfda.train$Z[,1]
+lfda_plot.train$LFDA2 <- lfda.train$Z[,2]
+
+head(lfda_plot.train)
+color <- c("#31688e","#440154", "#35b779")
+
+LFDA.validation <- ggplot(data = lfda_plot.train, aes(x=LFDA1,y=LFDA2,fill=Species))+ geom_point(color = "black", pch = 21, size = 9)+
+  theme_pubr() + theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("LFDA1") +
+  ylab("LFDA2")  + 
+  scale_fill_manual(values = color) 
+LFDA.validation
+
+#ggsave("25gt_validation_lfda1.pdf", path = "./../../Figures/", plot = LFDA.validation, dpi =320, width = 6, height = 4 )
+```
+
+### Testing with Wild
+
+```{r fig.height=6, fig.width=8}
+#predicting for test data
+
+pred.lfda.wild <- predict.LFDA(object = lfda.train, testData = ImpVals_wild)
+
+predictionsWild <- data.frame(observed = as.factor(wild$Species) , predicted = pred.lfda.wild$Nbayes_assig_pred$class, Prob = pred.lfda.wild$Nbayes_assig_pred$posterior )
+
+head(predictionsWild)
+Post <- as.data.frame(pred.lfda.wild$Nbayes_assig_pred$posterior)
+head(Post)
+
+lfda.test.wild=DA::LFDA(ImpVals_wild, pred.lfda.wild$Nbayes_assig_pred$class ,r=2,tol=1E-4, knn = 4, CV = T)
+
+#creating a dataframe with the coordinates of the LFDA 
+lfda_plot_wild <- wild %>% dplyr::select(1:8)
+lfda_plot_wild$Predicted <- lfda.test.wild$bayes_assigment$class
+lfda_plot_wild$LFDA1 <- lfda.test.wild$Z[,1]
+lfda_plot_wild$LFDA2 <- lfda.test.wild$Z[,2]
+
+
+head(lfda_plot_wild)
+
+lfda_plot_wild$Species <- factor(lfda_plot_wild$Species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa", "Calamagrostis sp"))
+
+#write.csv(lfda_plot, "../../Docs/Lfda_plot_wild.csv")
+
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+LFDAtest.pred.wild <- ggplot(data = lfda_plot_wild, aes(x=LFDA1,y=LFDA2,fill= Predicted)) + geom_point(color = "black", pch = 21, size = 9) + theme_pubr() + theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("LFDA1") +
+  ylab("LFDA2")  + 
+  scale_fill_manual(values = color1)
+
+LFDAtest.pred.wild
+
+#ggsave("25gt_Wildpred_lfda.pdf", path = "./../../Figures/", plot = LFDAtest.pred.wild, dpi =320, width = 8, height = 6 )
+```
+
+### Posterior Probabilities 
+
+```{r}
+Posterior_df_wild <- pred.lfda.wild$Nbayes_assig_pred$posterior
+
+posterior_df_wild <- predictionsWild  %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = wild$ID,
+         obsSpecies = wild$Species,
+         lat = wild$lat)
+posterior_df_wild
+```
+
+```{r}
+posterior_df_wild_long <- posterior_df_wild %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("Prob.Calamagrostis"), names_to = "posterior", values_to = "q") 
+
+posterior_df_wild_long_order <- posterior_df_wild_long %>% group_by(predicted) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+posterior_df_wild_long_order
+```
+
+```{r}
+
+color4 <- c("#31688e","#440154","#35b779" ) 
+
+x_labels <- posterior_df_wild_long_order$predicted
+names(x_labels) <- posterior_df_wild_long_order$individual
+
+posteriorWild <-   ggplot(data = posterior_df_wild_long_order) +
+  geom_col(aes(x = individual, y = q, fill = posterior)) +
+  scale_fill_manual(values = color4) +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=0),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24),
+        legend.text = element_text(face = "italic")) +
+  xlab("") +
+  ylab("LFDA Species Prediction \n Posterior Probability") + scale_x_discrete(guide = guide_axis(angle = 45)) +  scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(25.5,33.5,93.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 15, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 29.5, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 65, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic")
+  
+
+        
+posteriorWild
+
+
+ggsave("25gt_wild_post_prob.pdf", path = "./../../Figures/Final/", plot = posteriorWild, dpi =320, width = 16, height = 5 )
+```
+
+### Adding new species prediction to data frame and re-running PCA
+
+```{r}
+Wild_Clean <-cbind(wild[1:8],ImpVals_wild) %>% mutate (predicted= as.factor(posterior_df_wild$predicted), IDcheck = posterior_df_wild$individual)
+summary(Wild_Clean$predicted)
+
+geno_wild_Clean <- (Wild_Clean[9:265])
+rownames(geno_wild_Clean) <- Wild_Clean$ID
+Clean_wild_genid<- df2genind(geno_wild_Clean, sep="", ncode = 1, loc.names = colnames(geno_wild_Clean), ind.names = rownames(geno_wild_Clean), pop = as.factor(Wild_Clean$predicted))
+
+#adding strata wild
+strata_wild_clean <- cbind(Wild_Clean[1:8],Wild_Clean[266:267])
+strata_wild_clean$range <- ifelse(strata_wild_clean$lat > 65, "North", "South")
+strata(Clean_wild_genid) <- strata_wild_clean
+
+```
+
+```{r}
+#Wild
+wild.cal.clean <- tab(Clean_wild_genid, freq=TRUE, NA.method="mean")
+pca.cal.wild.clean <- dudi.pca(wild.cal.clean, center=TRUE, scale=FALSE,scannf = FALSE, nf = 2)
+pca.cal.wild.clean$eig
+pca_plot.wild.clean <-  strata_wild_clean
+pca_plot.wild.clean$PC1 <- pca.cal.wild.clean$li[,1] 
+pca_plot.wild.clean$PC2 <- pca.cal.wild.clean$li[,2] 
+head(pca_plot.wild.clean)
+str(pca_plot.wild.clean)
+
+
+eig.perc.wild.clean <- 100*pca.cal.wild.clean$eig/sum(pca.cal.wild.clean$eig)
+head(eig.perc.wild.clean)
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+wild_pca_plot_clean <- ggplot(pca_plot.wild.clean, aes(x=PC1, y=PC2, fill = predicted)) + theme_pubr()+
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"), axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (20.6%)") +
+  ylab("PC2 (16.6%)")  +  stat_ellipse(geom = "polygon", alpha = 0.4) + stat_ellipse() + geom_point(color = "black", pch = 21, size = 9)  + 
+  scale_fill_manual(values = color1) #+ facet_wrap(vars(actual_spec), scales = "free")  
+
+
+
+wild_pca_plot_clean
+
+#ggsave("25gt_wild_pca_clean.pdf", path = "./../../Figures/", plot = wild_pca_plot_clean, dpi =320, width = 6, height = 4 )
+```
+
+## Structure Analysis usiong LEA
+
+### Turning objects into LEA format
+
+setting the as command in adegented to do it's actual work because for some reason it does not anymore
+```{r}
+ setAs("genind", "genlight", function(from) {
+  df <- tab(from, NA.method = "mean")
+  gl <- new("genlight", df)
+  pop(gl) <- pop(from)
+  indNames(gl) <- indNames(from)
+  gl
+})
+```
+
+
+```{r}
+validation_genlight <- as(validation_genid, "genlight")
+wild_genlight <- as(Clean_wild_genid,"genlight")
+
+gl2geno(validation_genlight, outfile = "validation_LEA_gt", outpath = "./LEA", verbose = NULL)
+gl2geno(wild_genlight, outfile = "clean_wild_LEA_gt", outpath = "./LEA", verbose = NULL)
+```
+### Running structure for validation
+
+```{r}
+validation_snmf <- snmf(input.file = "./LEA/validation_LEA_gt.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                   repetitions = 5,
+                   project = "new",
+                   alpha = 50,
+                 iterations = 1000,
+                  seed = 123
+                  )
+#here we are looking at the cross entropy
+plot(validation_snmf, cex = 1.2, col = "lightblue", pch = 19)
+```
+```{r}
+ce <-  cross.entropy(validation_snmf, K = 3) 
+ce
+```
+
+```{r}
+q_mat_validation <- LEA::Q(validation_snmf, K = 3, run = 2) 
+
+colnames(q_mat_validation) <- paste0("P", 1:3)
+
+head(q_mat_validation)
+ 
+q_df_validation <- q_mat_validation %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = validation$ID,
+         Species = validation$Species,
+         lat = validation$lat)
+q_df_validation
+
+ library(tidyr)
+q_df_long_validation <- q_df_validation %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+
+
+q_df_order_validation <- q_df_long_validation %>% group_by(Species) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+q_df_order_validation
+```
+```{r fig.height=4, fig.width=10}
+
+color3 <- c("#31688e", "#440154", "#35b779") 
+plotvalidation <-   ggplot(data = q_df_order_validation) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color3)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=12),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) +
+ geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(14.5,19.5,29.5), y = 1.06, label = "|", size = 5)+
+  annotate("text", x = 7.5, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 17, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 24.5, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic")
+
+
+
+plotvalidation
+
+ggsave("25gt_validation_structure.pdf", path = "./../../Figures/Final/", plot = plotvalidation, dpi =320, width = 10, height = 4.5 )
+```
+
+
+### Structure for Wild 
+
+```{r}
+wild_snmf <- snmf(input.file = "./LEA/clean_wild_LEA_gt.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                   repetitions = 5,
+                   project = "new",
+                   alpha = 50,
+                  iterations = 1000,
+                  seed = 345
+                  )
+#here we are looking at the cross entropy
+plot(wild_snmf, cex = 1.2, col = "lightblue", pch = 19)
+```
+
+```{r}
+ce <-  cross.entropy(wild_snmf, K = 3) 
+ce
+```
+
+```{r}
+q_mat_wild <- LEA::Q(wild_snmf, K = 3, run = 4) 
+
+colnames(q_mat_wild) <- paste0("P", 1:3)
+
+head(q_mat_wild)
+ 
+q_df_wild <- q_mat_wild %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Wild_Clean$ID,
+         oldSpecies = Wild_Clean$Species,
+         Species = Wild_Clean$predicted,
+         lat = Wild_Clean$lat)
+q_df_wild
+summary(as.factor(q_df_wild$Species))
+
+q_df_long_wild <- q_df_wild %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+
+
+q_df_order_wild <- q_df_long_wild %>% group_by(Species) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+q_df_order_wild
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c("#31688e","#35b779", "#440154"  ) 
+
+plotwild <-   ggplot(data = q_df_order_wild) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=0),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(25.5,33.5,93.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 15, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 29.5, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 65, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic")
+
+  
+
+        
+plotwild
+#ggsave("25gt_wild_structure.pdf", path = "./../../Figures/Final/", plot = plotwild, dpi =320, width = 16, height = 5 )
+```
+
+```{r}
+q_mat_wild_6 <- LEA::Q(wild_snmf, K = 6, run = 3) 
+
+colnames(q_mat_wild_6) <- paste0("P", 1:6)
+
+head(q_mat_wild_6)
+ 
+q_df_wild_6 <- q_mat_wild_6 %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Wild_Clean$ID,
+         Species = Wild_Clean$predicted,
+         lat = Wild_Clean$lat)
+q_df_wild_6
+summary(as.factor(q_df_wild_6$Species))
+
+q_df_long_wild_6 <- q_df_wild_6 %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+
+
+q_df_order_wild_6 <- q_df_long_wild_6 %>% group_by(Species) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+q_df_order_wild_6
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c("#440154","#f0f921","#31688e","#8f0da4","#35b779","#fcfdbf" ) 
+
+plotwild_6 <-   ggplot(data = q_df_order_wild_6) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=18),axis.text.y=element_text(size=12)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(25.5,33.5,93.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 15, y = 1.1, label = "C. canadensis", size = 4, fontface = "italic") + 
+  annotate("text", x = 29.5, y = 1.1, label = "C. purpurascens", size = 4, fontface = "italic") +
+  annotate("text", x = 65, y = 1.1, label = "C. stricta sp. inexpansa", size = 4, fontface = "italic")
+  
+
+        
+plotwild_6
+
+#ggsave("25gt_wild_structurek6.pdf", path = "./../../Figures/", plot = plotwild_6, dpi =320, width = 16, height = 5 )
+```
+
+# Including commercial Invidivuals
+
+To better predict commercial, we will take the predicted labels of the wild dataset and add it to the full dataset and run the analyses. 
+
+```{r}
+IDsWildClean <- Wild_Clean %>% select(1, 266:267)
+IDsFullClean <- IDsFull %>% left_join(IDsWildClean, by = "ID")
+
+Full <- PolyDatMissIndFull %>% dplyr::select(!2:8)
+Full <-  left_join(IDsFullClean, Full, by = "ID")
+Full$predicted[is.na(Full$predicted)] <- "Calamagrostis canadensis"
+
+Full_num <- Full %>% dplyr::select(!1:8) %>% dplyr::select(!IDcheck) %>% mutate_if(is.character, as.factor)
+
+Commercial <- Full %>% filter(predicted == "Calamagrostis canadensis")
+Commercial_num  <- Commercial %>% dplyr::select(!1:7) %>% dplyr::select(!IDcheck)%>% dplyr::select(!predicted) %>% mutate_if(is.character, as.factor)
+```
+
+```{r}
+set.seed(8005)
+ImpVals_full<-rfImpute(x=Full_num,
+                  y=Full_num$predicted,
+                  iter=10,ntree=5000) 
+
+ImpVals_full <- ImpVals_full %>% dplyr::select(,3:259)%>%
+  mutate_if(is.factor, as.character)%>% 
+  mutate_if(is.character, as.numeric)
+
+
+set.seed(805)
+ImpVals_comm<-rfImpute(x=Commercial_num,
+                  y=Commercial_num$region,
+                  iter=10,ntree=5000) 
+
+ImpVals_comm <- ImpVals_comm %>% dplyr::select(,3:259)%>%
+  mutate_if(is.factor, as.character)%>% 
+  mutate_if(is.character, as.numeric)
+```
+
+```{r}
+#Full
+geno_full <- as.matrix(ImpVals_full)
+rownames(geno_full) <- Full$ID
+full_genid<- df2genind(geno_full, sep="", ncode = 1, loc.names = colnames(geno_full), ind.names = rownames(geno_full), pop = as.factor(Full$predicted))
+
+#Commercial
+geno_comm <- as.matrix(ImpVals_comm)
+rownames(geno_comm) <- Commercial$ID
+comm_genid<- df2genind(geno_comm, sep="", ncode = 1, loc.names = colnames(geno_comm), ind.names = rownames(geno_comm), pop = as.factor(Commercial$region))
+
+```
+
+```{r}
+#adding strata full
+strata_full <- Full[1:10]
+strata_full$range <- ifelse(strata_full$lat > 65, "North", "South")
+strata(full_genid) <- strata_full
+
+
+#adding strata commercial
+strata_comm <- Commercial[1:10]
+strata_comm$range <- ifelse(strata_comm$lat > 65, "North", "South")
+strata(comm_genid) <- strata_comm
+```
+
+```{r}
+full.cal <- tab(full_genid, freq=TRUE, NA.method="mean")
+pca.cal.full <- dudi.pca(full.cal, center=TRUE, scale=FALSE,scannf = FALSE, nf = 2)
+pca.cal.full$eig
+pca_plot.full <-  strata_full
+pca_plot.full$PC1 <- pca.cal.full$li[,1] 
+pca_plot.full$PC2 <- pca.cal.full$li[,2] 
+head(pca_plot.full)
+str(pca_plot.full)
+
+pca_plot.full$predicted <- factor(pca_plot.full$predicted, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa", "Calamagrostis sp"))
+
+eig.perc.full <- 100*pca.cal.full$eig/sum(pca.cal.full$eig)
+head(eig.perc.full)
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+full_pca_plot <- ggplot(pca_plot.full, aes(x=PC1, y=PC2, fill = predicted)) + theme_pubr()+
+  geom_point(color = "black", size = 9, aes(shape = origin)) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (26.4%)") +
+  ylab("PC2 (9.6%)")   + 
+  scale_fill_manual(values = color1) + scale_shape_manual(values = c(23,21)) + stat_ellipse() + stat_ellipse(geom = "polygon", alpha = 0.2)
+
+
+
+full_pca_plot 
+#ggsave("25gt_full_pca1.pdf", path = "./../../Figures/", plot = full_pca_plot, dpi =320, width = 6, height = 4)
+
+```
+```{r}
+comm.cal <- tab(comm_genid, freq=TRUE, NA.method="mean")
+pca.cal.comm <- dudi.pca(comm.cal, center=TRUE, scale=FALSE,scannf = FALSE, nf = 2)
+pca.cal.comm$eig
+pca_plot.comm <-  strata_comm
+pca_plot.comm$PC1 <- pca.cal.comm$li[,1] 
+pca_plot.comm$PC2 <- pca.cal.comm$li[,2] 
+head(pca_plot.comm)
+str(pca_plot.comm)
+
+pca_plot.comm$origin <- factor(pca_plot.comm$origin, levels = c("Commercial", "Wild"))
+
+eig.perc.comm <- 100*pca.cal.comm$eig/sum(pca.cal.comm$eig)
+head(eig.perc.comm)
+
+color1 <- c("#fca50a","#31688e") 
+
+comm_pca_plot <- ggplot(pca_plot.comm, aes(x=PC1, y=PC2, fill = origin)) + theme_pubr()+
+  geom_point(color = "black", size = 9, aes(shape = origin)) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (18.0%)") +
+  ylab("PC2 (6.7%)")   + 
+  scale_fill_manual(values = color1) + scale_shape_manual(values = c(21,21)) + stat_ellipse() + stat_ellipse(geom = "polygon", alpha = 0.1)
+
+
+comm_pca_plot 
+#ggsave("25gt_comm_pca1.pdf", path = "./../../Figures/", plot = comm_pca_plot, dpi =320, width = 6, height = 4)
+
+```
+
+
+### Checking Commercial Species prediction using LFDA
+
+```{r fig.height=5, fig.width=6}
+#predicting for test data
+
+full.pred.lfda <- predict.LFDA(object = lfda.train, testData = ImpVals_full)
+predictions.full <- data.frame(observed = as.factor(Full$predicted) , LFDApredicted = full.pred.lfda$Nbayes_assig_pred$class, origin = as.factor(Full$origin), Prob = full.pred.lfda$Nbayes_assig_pred$posterior  )
+head(predictions.full)
+
+lfda.test.full=DA::LFDA(ImpVals_full, full.pred.lfda$Nbayes_assig_pred$class,r=2,tol=1E-4, knn = 4, CV = T)
+#creating a dataframe with the coordinates of the LFDA 
+lfda_plot.full <- Full %>% dplyr::select(1:10)
+lfda_plot.full$LFDAPredicted <- lfda.test.full$bayes_assigment$class
+lfda_plot.full$LFDA1 <- lfda.test.full$Z[,1]
+lfda_plot.full$LFDA2 <- lfda.test.full$Z[,2]
+
+head(lfda_plot.full)
+
+lfda_plot.full$Species <- factor(lfda_plot.full$Species, levels = c("Calamagrostis canadensis", "Calamagrostis purpurascens", "Calamagrostis stricta ssp inexpansa"))
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+LFDAtest.pred.full <- ggplot(data = lfda_plot.full, aes(x=LFDA1,y=LFDA2,fill= LFDAPredicted, shape = origin)) +theme_pubr() + theme(legend.title = element_blank(), legend.position = "", legend.text = element_text(face = "italic"), axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("LFDA1") +
+  ylab("LFDA2")  + geom_point(color = "black", size = 9)  + 
+ scale_fill_manual(values = color1)+ scale_shape_manual(values = c(23,21))
+
+LFDAtest.pred.full
+#ggsave("25gt_fullpred_lfda.pdf", path = "./../../Figures/", plot = LFDAtest.pred.full, dpi =320, width = 6, height = 4 )
+```
+
+
+
+```{r}
+Posterior_df_full <- full.pred.lfda$Nbayes_assig_pred$posterior
+
+posterior_df_full <- predictions.full  %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Full$ID,
+         obsSpecies = Full$predicted,
+         lat = Full$lat)
+posterior_df_full
+```
+
+```{r}
+posterior_df_full_long <- posterior_df_full %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("Prob.Calamagrostis"), names_to = "posterior", values_to = "q") 
+
+posterior_df_full_long_order <- posterior_df_full_long %>% group_by(origin, LFDApredicted) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+posterior_df_full_long_order
+```
+```{r}
+color4 <- c("#31688e","#440154","#35b779", "yellow" ) 
+
+x_labels <- as.factor(posterior_df_full_long_order$individual)
+names(x_labels) <- posterior_df_full_long_order$individual
+
+levels(posterior_df_full_long_order$individual)
+
+posteriorFull <-   ggplot(data = posterior_df_full_long_order) +
+  geom_col(aes(x = individual, y = q, fill = posterior)) +
+  scale_fill_manual(values = color4) +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24),
+        legend.text = element_text(face = "italic")) +
+  xlab("") +
+  ylab("LFDA Species Prediction \n Posterior Probability") + scale_x_discrete( guide = guide_axis(angle = 45))+ geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(69.5, 93.5, 100.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 34.5, y = 1.1, label = "Commercial C. canadensis", size = 6, fontface = "italic")+
+  annotate("text", x = 82.5, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 96.5, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 127, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic") 
+  
+
+        
+posteriorFull
+ggsave("25.1gt_full_post_prob.pdf", path = "./../../Figures/", plot = posteriorFull, dpi =320, width = 28, height = 5 )
+
+```
+
+## Principal component analyses with new predicted species 
+
+```{r}
+Full_Clean <-cbind(Full[1:10],ImpVals_full) %>% mutate (LFDApredicted= as.factor(posterior_df_full$LFDApredicted))
+summary(Full_Clean$LFDApredicted)
+
+geno_full_Clean <- (Full_Clean[11:267])
+rownames(geno_full_Clean) <- Full_Clean$ID
+Clean_full_genid<- df2genind(geno_full_Clean, sep="", ncode = 1, loc.names = colnames(geno_full_Clean), ind.names = rownames(geno_full_Clean), pop = as.factor(Full_Clean$predicted))
+
+#adding strata wild
+strata_full_clean <- cbind(Full_Clean[1:10],Full_Clean[268])
+strata_full_clean$range <- ifelse(strata_full_clean$lat > 65, "North", "South")
+strata(Clean_full_genid) <- strata_full_clean
+
+
+#Commercial 
+Canadensis <- Full_Clean %>% filter(LFDApredicted == "Calamagrostis canadensis") %>% filter(origin != "Commercial")
+Commercial_sub <- Full_Clean %>% filter(origin == "Commercial")
+Commercial_clean <- rbind(Canadensis, Commercial_sub)
+
+geno_comm_Clean <- (Commercial_clean[11:267])
+rownames(geno_comm_Clean) <- Commercial_clean$ID
+Clean_comm_genid<- df2genind(geno_comm_Clean, sep="", ncode = 1, loc.names = colnames(geno_comm_Clean), ind.names = rownames(geno_comm_Clean), pop = as.factor(Commercial_clean$region))
+
+#adding strata wild
+strata_full_clean <- cbind(Full_Clean[1:10],Full_Clean[268])
+strata_full_clean$range <- ifelse(strata_full_clean$lat > 65, "North", "South")
+strata(Clean_full_genid) <- strata_full_clean
+
+#adding strata commercial
+strata_comm_clean <- cbind(Commercial_clean[1:10],Commercial_clean[268])
+strata_comm_clean$range <- ifelse(strata_comm_clean$lat > 65, "North", "South")
+strata(Clean_comm_genid) <- strata_comm_clean
+```
+
+```{r}
+#Full
+full.cal.clean <- tab(Clean_full_genid, freq=TRUE, NA.method="mean")
+pca.cal.full.clean <- dudi.pca(full.cal.clean, center=TRUE, scale=FALSE,scannf = FALSE, nf = 2)
+pca.cal.full.clean$eig
+pca_plot.full.clean <-  strata_full_clean
+pca_plot.full.clean$PC1 <- pca.cal.full.clean$li[,1] 
+pca_plot.full.clean$PC2 <- pca.cal.full.clean$li[,2] 
+head(pca_plot.full.clean)
+str(pca_plot.full.clean)
+
+
+eig.perc.full.clean <- 100*pca.cal.full.clean$eig/sum(pca.cal.full.clean$eig)
+head(eig.perc.full.clean)
+
+color1 <- c("#31688e","#440154", "#35b779", "#fde725") 
+
+full_pca_plot_clean <- ggplot(pca_plot.full.clean , aes(x=PC1, y=PC2, fill = LFDApredicted )) + theme_pubr()+
+  geom_point(color = "black", size = 9, aes(shape = origin)) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (26.5%)") +
+  ylab("PC2 (9.6%)")   + 
+  scale_fill_manual(values = color1) + scale_shape_manual(values = c(23,21)) + stat_ellipse() + stat_ellipse(geom = "polygon", alpha = 0.2)
+
+
+
+full_pca_plot_clean
+
+#ggsave("25gt_full_pca_clean.pdf", path = "./../../Figures/", plot = full_pca_plot_clean, dpi =320, width = 6, height = 4 )
+```
+```{r}
+#Commercial
+comm.cal.clean <- tab(Clean_comm_genid, freq=TRUE, NA.method="mean")
+pca.cal.comm.clean <- dudi.pca(comm.cal.clean, center=TRUE, scale=FALSE,scannf = FALSE, nf = 2)
+pca.cal.comm.clean$eig
+pca_plot.comm.clean <-  strata_comm_clean
+pca_plot.comm.clean$PC1 <- pca.cal.comm.clean$li[,1] 
+pca_plot.comm.clean$PC2 <- pca.cal.comm.clean$li[,2] 
+head(pca_plot.comm.clean)
+str(pca_plot.comm.clean)
+
+
+eig.perc.comm.clean <- 100*pca.cal.comm.clean$eig/sum(pca.cal.comm.clean$eig)
+head(eig.perc.comm.clean)
+
+color1 <- c("#fca50a","#31688e") 
+
+comm_pca_plot_clean <- ggplot(pca_plot.comm.clean , aes(x=PC1, y=PC2, fill = origin, label = region )) + theme_pubr()+
+  geom_point(color = "black", size = 9, aes(shape = LFDApredicted)) +
+  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("PC1 (11.3%)") +
+  ylab("PC2 (7.7%)")   + 
+  scale_fill_manual(values = color1) + scale_shape_manual(values = c(21,17,18)) + stat_ellipse() + stat_ellipse(geom = "polygon", alpha = 0.2) + geom_text(color = "white")
+
+
+
+comm_pca_plot_clean
+
+ggsave("25gt_comm_pca_clean.pdf", path = "./../../Figures/", plot = comm_pca_plot_clean, dpi =320, width = 6, height = 4 )
+```
+### Structure analysis for full and commercial
+
+```{r}
+full_genlight <- as(Clean_full_genid,"genlight")
+comm_genlight <- as(Clean_comm_genid,"genlight")
+
+gl2geno(full_genlight, outfile = "full_LEA_gt", outpath = "./LEA", verbose = NULL)
+gl2geno(comm_genlight, outfile = "comm_LEA_gt", outpath = "./LEA", verbose = NULL)
+
+```
+```{r}
+full_snmf <- snmf(input.file = "./LEA/full_LEA_gt.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                   repetitions = 5,
+                   project = "new",
+                   alpha = 50,
+                 iterations = 1000,
+                  seed = 123
+                  )
+#here we are looking at the cross entropy
+plot(full_snmf, cex = 1.2, col = "lightblue", pch = 19)
+```
+
+```{r}
+ce <-  cross.entropy(full_snmf, K = 3) 
+ce
+```
+
+```{r}
+q_mat_full <- LEA::Q(full_snmf, K = 3, run = 2) 
+
+colnames(q_mat_full) <- paste0("P", 1:3)
+
+head(q_mat_full)
+ 
+q_df_full <- q_mat_full %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Full_Clean$ID,
+         origin = Full_Clean$origin,
+         region = Full_Clean$region,
+         Species = Full_Clean$LFDApredicted,
+         lat = Full_Clean$lat)
+head(q_df_full)
+
+q_df_long_full <- q_df_full %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+head(q_df_long_full)
+
+q_df_order_full <- q_df_long_full %>% group_by(origin,Species,lat,region) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+head(q_df_order_full)
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c( "#440154","#35b779","#31688e"  ) 
+
+plotfull <-   ggplot(data = q_df_order_full) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(69.5, 93.5, 100.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 34.5, y = 1.1, label = "Commercial C. canadensis", size = 6, fontface = "italic")+
+  annotate("text", x = 82.5, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 96.5, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 127, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic") 
+
+
+  
+
+        
+plotfull
+ggsave("25gt_full_structure.pdf", path = "./../../Figures/", plot = plotfull, dpi =320, width = 16, height = 5 )
+```
+
+trying K =4 
+
+```{r}
+q_mat_full4 <- LEA::Q(full_snmf, K = 4, run = 2) 
+
+colnames(q_mat_full4) <- paste0("P", 1:4)
+
+head(q_mat_full4)
+ 
+q_df_full4 <- q_mat_full4 %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Full_Clean$ID,
+         origin = Full_Clean$origin,
+         region = Full_Clean$region,
+         Species = Full_Clean$LFDApredicted,
+         lat = Full_Clean$lat)
+head(q_df_full4)
+
+q_df_long_full4 <- q_df_full4 %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+head(q_df_long_full)
+
+q_df_order_full4 <- q_df_long_full4 %>% group_by(origin,Species,lat,region) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+head(q_df_order_full4)
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c( "#440154","#31688e","#35b779", "#fca50a"  ) 
+
+plotfull4 <-   ggplot(data = q_df_order_full4) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(69.5, 93.5, 100.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 34.5, y = 1.1, label = "Commercial C. canadensis", size = 6, fontface = "italic")+
+  annotate("text", x = 82.5, y = 1.1, label = "C. canadensis", size = 6, fontface = "italic") + 
+  annotate("text", x = 96.5, y = 1.1, label = "C. purpurascens", size = 6, fontface = "italic") +
+  annotate("text", x = 127, y = 1.1, label = "C. stricta sp. inexpansa", size = 6, fontface = "italic") 
+
+
+  
+
+        
+plotfull4
+#ggsave("gt_full_structurek4.pdf", path = "./../../Figures/", plot = plotfull4, dpi =320, width = 16, height = 5 )
+```
+
+Let's do it directly with the commercial only:
+
+```{r}
+comm_snmf <- snmf(input.file = "./LEA/comm_LEA_gt.geno",
+                   K = 1:10,
+                   entropy = TRUE,
+                   repetitions = 5,
+                   project = "new",
+                   alpha = 50,
+                 iterations = 1000,
+                  seed = 123
+                  )
+#here we are looking at the cross entropy
+plot(comm_snmf, cex = 1.2, col = "lightblue", pch = 19)
+```
+
+```{r}
+ce <-  cross.entropy(comm_snmf, K = 4) 
+ce
+```
+
+```{r}
+q_mat_comm <- LEA::Q(comm_snmf, K = 4, run = 4) 
+
+colnames(q_mat_comm) <- paste0("P", 1:4)
+
+head(q_mat_comm)
+ 
+q_df_comm <- q_mat_comm %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Commercial_clean$ID,
+         origin = Commercial_clean$origin,
+         region = Commercial_clean$region,
+         Species = Commercial_clean$LFDApredicted,
+         lat = Commercial_clean$lat)
+head(q_df_comm)
+
+q_df_long_comm <- q_df_comm %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+head(q_df_long_comm)
+
+q_df_order_comm <- q_df_long_comm %>% group_by(origin,lat,region) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+head(q_df_order_comm)
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c( "#3b0f70", "#8c2981", "#de4968", "#fe9f6d"  ) 
+
+plotcomm <-   ggplot(data = q_df_order_comm) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=18),axis.text.y=element_text(size=12)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(69.5, 93.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 34.5, y = 1.1, label = "Commercial C. canadensis", size = 4, fontface = "italic")+
+  annotate("text", x = 80.5, y = 1.1, label = "Wild C. canadensis", size = 4, fontface = "italic") 
+
+  
+
+        
+plotcomm
+#ggsave("gt_comm_structure4.pdf", path = "./../../Figures/", plot = plotcomm, dpi =320, width = 16, height = 5 )
+```
+
+let's try with 2
+
+```{r}
+ce <-  cross.entropy(comm_snmf, K = 2) 
+ce
+```
+
+```{r}
+q_mat_comm <- LEA::Q(comm_snmf, K = 2, run = 4) 
+
+colnames(q_mat_comm) <- paste0("P", 1:2)
+
+head(q_mat_comm)
+ 
+q_df_comm <- q_mat_comm %>% 
+  as_tibble() %>% 
+  # add the pops data for plotting
+  mutate(individual = Commercial_clean$ID,
+         origin = Commercial_clean$origin,
+         region = Commercial_clean$region,
+         Species = Commercial_clean$LFDApredicted,
+         lat = Commercial_clean$lat)
+head(q_df_comm)
+
+q_df_long_comm <- q_df_comm %>% 
+  # transform the data to a "long" format so proportions can be plotted
+  pivot_longer(cols = starts_with("P"), names_to = "pop", values_to = "q") 
+head(q_df_long_comm)
+
+q_df_order_comm <- q_df_long_comm %>% group_by(origin,lat,region) %>%
+  # arrange the data set by the plot order indicated in Prates et al.
+  arrange((lat), .by_group = TRUE) %>% 
+  # this ensures that the factor levels for the individuals follow the ordering we just did. This is necessary for plotting
+  mutate(individual = forcats::fct_inorder(factor(individual)))
+
+head(q_df_order_comm)
+```
+
+```{r fig.height=5, fig.width=16}
+
+color4 <- c(  "#e6308a", "#fe9f6d"  ) 
+
+region_labels <- q_df_order_comm %>%
+  distinct(individual, region)
+
+plotcomm <-   ggplot(data = q_df_order_comm) +
+  geom_col(aes(x = individual, y = q, fill = pop)) +
+  scale_fill_manual(values = color4)+
+  labs(fill = "Species") +
+  theme_pubr() +
+  theme(legend.title = element_blank(),
+        legend.position = "",
+        axis.text.x = element_text(size=10),
+        axis.title=element_text(size=24),axis.text.y=element_text(size=24)) +
+  xlab("Individual") +
+  ylab("Ancestry Proportions") + scale_x_discrete(labels = region_labels$region, guide = guide_axis(angle = 45)) + geom_hline(yintercept=1.05, linetype="dashed", 
+                color = "black", size=0.5) + annotate("text", x = c(69.5, 93.5), y = 1.06, label = "|", size = 5) +
+  annotate("text", x = 34.5, y = 1.1, label = "Commercial C. canadensis", size = 6, fontface = "italic")+
+  annotate("text", x = 80.5, y = 1.1, label = "Wild C. canadensis", size = 6, fontface = "italic") 
+
+  
+
+        
+plotcomm
+ggsave("25.1gt_comm_structure4.pdf", path = "./../../Figures/", plot = plotcomm, dpi =320, width = 16, height = 5 )
+```
+
+
+# Diversity Stats
+
+```{r}
+validation_hier <- genind2hierfstat(validation_genid)
+wild_hier <- genind2hierfstat(Clean_wild_genid)
+full_hier <- genind2hierfstat(Clean_full_genid)
+comm_hier <- genind2hierfstat(Clean_comm_genid)
+comm_hier_bin <- comm_hier %>% mutate(pop = strata_comm_clean$origin)
+commOnly_hier <- comm_hier %>% mutate(pop = strata_comm_clean$region, origin =strata_comm_clean$origin ) %>% filter(origin == "Commercial") %>% dplyr::select(1:258)
+Canad_hier <- comm_hier %>% mutate(pop = strata_comm_clean$region, origin =strata_comm_clean$origin ) %>% filter(origin == "Wild") %>% dplyr::select(1:258)
+
+```
+
+```{r}
+# assume diploidy here
+basic_stats_validation <- basic.stats(validation_hier, diploid = T, digits = 2)
+basic_stats_wild <- basic.stats(wild_hier, diploid = T, digits = 2)
+basic_stats_full <- basic.stats(full_hier, diploid = T, digits = 2)
+basic_stats_comm <- basic.stats(comm_hier, diploid = T, digits = 2)
+basic_stats_comm_bin <- basic.stats(comm_hier_bin, diploid = T, digits = 2)
+basic_stats_commOnly <- basic.stats(commOnly_hier, diploid = T, digits = 2)
+basic_stats_canad <- basic.stats(Canad_hier, diploid = T, digits = 2)
+```
+
+```{r}
+stat_tbl_validation <- as.data.frame(table(validation_genid$pop))
+names(stat_tbl_validation) <- c("Species", "n")
+stat_tbl_validation$Hs <- colMeans(basic_stats_validation$Hs, na.rm = T)
+stat_tbl_validation$Ho <- colMeans(basic_stats_validation$Ho, na.rm = T)
+stat_tbl_validation$Fis <- colMeans(basic_stats_validation$Fis, na.rm = T)
+knitr::kable(stat_tbl_validation)
+
+stat_tbl_wild <- as.data.frame(table(Clean_wild_genid$pop))
+names(stat_tbl_wild) <- c("Species", "n")
+stat_tbl_wild$Hs <- colMeans(basic_stats_wild$Hs, na.rm = T)
+stat_tbl_wild$Ho <- colMeans(basic_stats_wild$Ho, na.rm = T)
+stat_tbl_wild$Fis <- colMeans(basic_stats_wild$Fis, na.rm = T)
+knitr::kable(stat_tbl_wild)
+
+stat_tbl_full <- as.data.frame(table(Clean_full_genid$pop))
+names(stat_tbl_full) <- c("Species", "n")
+stat_tbl_full$Hs <- colMeans(basic_stats_full$Hs, na.rm = T)
+stat_tbl_full$Ho <- colMeans(basic_stats_full$Ho, na.rm = T)
+stat_tbl_full$Fis <- colMeans(basic_stats_full$Fis, na.rm = T)
+knitr::kable(stat_tbl_full)
+
+stat_tbl_comm <- as.data.frame(table(Clean_comm_genid$pop))
+names(stat_tbl_comm) <- c("Species", "n")
+stat_tbl_comm$Hs <- colMeans(basic_stats_comm$Hs, na.rm = T)
+stat_tbl_comm$Ho <- colMeans(basic_stats_comm$Ho, na.rm = T)
+stat_tbl_comm$Fis <- colMeans(basic_stats_comm$Fis, na.rm = T)
+knitr::kable(stat_tbl_comm)
+
+stat_tbl_commOnly <- as.data.frame(table(Commercial_sub$region))
+names(stat_tbl_commOnly) <- c("Species", "n")
+stat_tbl_commOnly$Hs <- colMeans(basic_stats_commOnly$Hs, na.rm = T)
+stat_tbl_commOnly$Ho <- colMeans(basic_stats_commOnly$Ho, na.rm = T)
+stat_tbl_commOnly$Fis <- colMeans(basic_stats_commOnly$Fis, na.rm = T)
+knitr::kable(stat_tbl_commOnly)
+
+stat_tbl_comm_bin <- as.data.frame(table(Clean_comm_genid$strata$origin))
+names(stat_tbl_comm_bin) <- c("Origin", "n")
+stat_tbl_comm_bin$Hs <- colMeans(basic_stats_comm_bin$Hs, na.rm = T)
+stat_tbl_comm_bin$Ho <- colMeans(basic_stats_comm_bin$Ho, na.rm = T)
+stat_tbl_comm_bin$Fis <- colMeans(basic_stats_comm_bin$Fis, na.rm = T)
+knitr::kable(stat_tbl_comm_bin)
+
+stat_tbl_canad <- as.data.frame(table(Canadensis$region))
+names(stat_tbl_canad) <- c("Origin", "n")
+stat_tbl_canad$Hs <- colMeans(basic_stats_canad$Hs, na.rm = T)
+stat_tbl_canad$Ho <- colMeans(basic_stats_canad$Ho, na.rm = T)
+stat_tbl_canad$Fis <- colMeans(basic_stats_canad$Fis, na.rm = T)
+knitr::kable(stat_tbl_canad)
+```
+
+### FST
+
+```{r}
+wc(validation_hier)
+wc(wild_hier)
+wc(full_hier)
+wc(comm_hier)
+wc(comm_hier_bin)
+wc(commOnly_hier)
+wc(Canad_hier)
+```
+```{r}
+spec.matFst.validation <- pairwise.neifst(validation_hier)
+spec.matFst.validation
+
+
+spec.matFst.wild <- pairwise.neifst(wild_hier)
+spec.matFst.wild
+
+spec.matFst.full <- pairwise.neifst(full_hier)
+spec.matFst.full
+
+spec.matFst.comm <- pairwise.neifst(comm_hier)
+spec.matFst.comm
+
+spec.matFst.commOnly <- pairwise.neifst(commOnly_hier)
+spec.matFst.commOnly
+
+spec.matFst.comm_bin <- pairwise.neifst(comm_hier_bin)
+spec.matFst.comm_bin
+
+spec.matFst.canad <- pairwise.neifst(Canad_hier)
+spec.matFst.canad
+```
+
+
+```{r}
+spec.tree.validation <- nj(spec.matFst.validation)
+plot(spec.tree.validation, type="unrooted", tip.col= "black", font=1.8)
+annot_validation <- round(spec.tree.validation$edge.length,2)
+
+
+spec.tree.wild <- nj(spec.matFst.wild)
+annot_wild <- round(spec.tree.wild$edge.length,2)
+plot(spec.tree.wild, type="unr", tip.col= "black", font=1.8)
+
+spec.tree.full <- nj(spec.matFst.full)
+annot_full <- round(spec.tree.full$edge.length,2)
+plot(spec.tree.full, type="unr", tip.col= "black", font=1.8)
+
+spec.tree.comm <- nj(spec.matFst.comm)
+annot_comm <- round(spec.tree.comm$edge.length,2)
+plot(spec.tree.comm, type="radial", tip.col= "black", font=1.8)
+
+spec.tree.commOnly <- nj(spec.matFst.commOnly)
+annot_commOnly <- round(spec.tree.commOnly$edge.length,2)
+plot(spec.tree.commOnly, type="radial", tip.col= "black", font=1.8)
+
+```
+
+## Isolation By Distance 
+
+We have to split our wild data set by Species now
+
+```{r}
+Canadensis <- Wild_Clean %>% filter(origin != "Commercial") %>%filter(predicted == "Calamagrostis canadensis") 
+Purpura <- Wild_Clean %>% filter(origin != "Commercial") %>%filter(predicted == "Calamagrostis purpurascens")
+Stricta <- Wild_Clean %>% filter(origin != "Commercial") %>%filter(predicted == "Calamagrostis stricta ssp inexpansa")
+
+```
+
+
+```{r}
+#canadensis
+geno_can <- (Canadensis[9:265])
+rownames(geno_can) <- Canadensis$ID
+can_genid<- df2genind(geno_can, sep="", ncode = 1, loc.names = colnames(geno_can), ind.names = rownames(geno_can), pop = as.factor(Canadensis$region))
+
+strata_can <- cbind(Canadensis[1:8],Canadensis[266:267])
+strata_can$range <- ifelse(strata_can$lat > 65, "North", "South")
+strata(can_genid) <- strata_can
+
+
+#purpurascens
+geno_pur <- (Purpura[9:265])
+rownames(geno_pur) <- Purpura$ID
+pur_genid<- df2genind(geno_pur, sep="", ncode = 1, loc.names = colnames(geno_pur), ind.names = rownames(geno_pur), pop = as.factor(Purpura$region))
+
+strata_purp <- cbind(Purpura[1:8],Purpura[266:267])
+strata_purp$range <- ifelse(strata_purp$lat > 65, "North", "South")
+strata(pur_genid) <-strata_purp
+
+#stricta
+geno_str <- (Stricta[9:265])
+rownames(geno_str) <- Stricta$ID
+str_genid<- df2genind(geno_str, sep="", ncode = 1, loc.names = colnames(geno_str), ind.names = rownames(geno_str), pop = as.factor(Stricta$region))
+
+strata_str <- cbind(Stricta[1:8],Stricta[266:267])
+strata_str$range <- ifelse(strata_str$lat > 65, "North", "South")
+strata(str_genid) <- strata_str
+```
+
+```{r}
+Dgen_wild <- nei.dist(Clean_wild_genid)
+hist(Dgen_wild)
+Dgen_wild_vec <- as.vector(Dgen_wild) 
+summary(Dgen_wild_vec)
+
+Dgen_can <- nei.dist(can_genid)
+hist(Dgen_can)
+Dgen_can_vec <- as.vector(Dgen_can) 
+summary(Dgen_can_vec)
+
+Dgen_str <- nei.dist(str_genid)
+hist(Dgen_str)
+Dgen_str_vec <- as.vector(Dgen_str) 
+summary(Dgen_str_vec)
+
+Dgen_pur <- nei.dist(pur_genid)
+hist(Dgen_pur)
+Dgen_pur_vec <- as.vector(Dgen_pur) 
+summary(Dgen_pur_vec)
+```
+
+```{r}
+#add lat and long information, this should be by population not by individual
+lat_long_wild <- (cbind(strata_wild_clean$lat,strata_wild_clean$long))
+lat_long_can <- (cbind(strata_can$lat,strata_can$long))
+lat_long_str <- (cbind(strata_str$lat,strata_str$long))
+lat_long_pur <- (cbind(strata_purp$lat,strata_purp$long))
+
+#attach to genid object
+
+Clean_wild_genid@other$xy <- lat_long_wild
+
+can_genid@other$xy <- lat_long_can
+
+str_genid@other$xy <- lat_long_str
+
+pur_genid@other$xy <- lat_long_pur
+```
+
+```{r}
+#calculating geographic distance
+
+Dgeo_wild <- dist(Clean_wild_genid$other$xy)
+Dgeo_wild_vec <- as.vector(Dgeo_wild) 
+wild_distance <- cbind(Dgen_wild_vec, Dgeo_wild_vec)
+
+
+Dgeo_can <- dist(can_genid$other$xy)
+Dgeo_can_vec <- as.vector(Dgeo_can) 
+can_distance <- cbind(Dgen_can_vec, Dgeo_can_vec)
+
+Dgeo_str <- dist(str_genid$other$xy)
+Dgeo_str_vec <- as.vector(Dgeo_str) 
+str_distance <- cbind(Dgen_str_vec, Dgeo_str_vec)
+
+Dgeo_pur <- dist(pur_genid$other$xy)
+Dgeo_pur_vec <- as.vector(Dgeo_pur) 
+pur_distance <- cbind(Dgen_pur_vec, Dgeo_pur_vec)
+```
+
+```{r}
+plot_ibd_wild <- ggplot(data = wild_distance, aes(x =Dgeo_wild_vec, y = Dgen_wild_vec)) + geom_point(size = 6, fill = "orange", color = "black", shape = 21) + geom_smooth(method = "lm", se = F, color = "black") + theme_pubr() +  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("Individual Pairwise \n Geographic Distance") +
+  ylab("Individual Pairwise \n Genetic Distance")  +
+  annotate("text", x = 13, y = 0.001, label = expression(italic(r)^2 == 0.1331), size = 6) +
+annotate("text", x = 20, y = 0.001, label = expression(italic(p) < 0.01), size = 6) 
+
+plot_ibd_wild
+
+
+IBD_wild <- vegan::mantel(Dgen_wild,Dgeo_wild, method="pearson", na.rm = T)
+IBD_wild
+
+ggsave("25gt_wild_ibd.pdf", path = "./../../Figures/", plot = plot_ibd_wild, dpi =320, width =6, height = 4 )
+
+```
+
+
+```{r}
+plot_ibd_can <- ggplot(data = can_distance, aes(x =Dgeo_can_vec, y = Dgen_can_vec)) + geom_point(size = 6, fill = "#31688e", color = "black", shape = 21) + geom_smooth(method = "lm", se = F, color = "black") + theme_pubr() +  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("Individual Pairwise \n Geographic Distance") +
+  ylab("Individual Pairwise \n Genetic Distance")  +
+  annotate("text", x = 12, y = 0.001, label = expression(italic(r)^2 == 0.2272), size = 6) +
+annotate("text", x = 20, y = 0.001, label = expression(italic(p) < 0.001), size = 6 ) 
+
+plot_ibd_can
+
+
+IBD_can <- vegan::mantel(Dgen_can,Dgeo_can, method="pearson", na.rm = T)
+IBD_can
+
+ggsave("25gt_canadensis_ibd.pdf", path = "./../../Figures/", plot = plot_ibd_can, dpi =320, width =6, height = 4 )
+```
+
+```{r}
+plot_ibd_str <- ggplot(data = str_distance, aes(x =Dgeo_str_vec, y = Dgen_str_vec)) + geom_point(size = 6, fill = "#35b779", color = "black", shape = 21) + geom_smooth(method = "lm", se = F, color = "black") + theme_pubr() +  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+   xlab("Individual Pairwise \n Geographic Distance") +
+  ylab("Individual Pairwise \n Genetic Distance")  +
+  annotate("text", x = 12, y = 0.001, label = expression(italic(r)^2 == 0.1607), size = 6) +
+annotate("text", x = 20, y = 0.001, label = expression(italic(p) < 0.05), size = 6)
+
+plot_ibd_str
+
+
+IBD_str <- vegan::mantel(Dgen_str,Dgeo_str, method="pearson", na.rm = T)
+IBD_str
+
+ggsave("25gt_stricta_ibd.pdf", path = "./../../Figures/", plot = plot_ibd_str, dpi =320, width =6, height = 4 )
+```
+
+```{r}
+plot_ibd_pur <- ggplot(data = pur_distance, aes(x =Dgeo_pur_vec, y = Dgen_pur_vec)) + geom_point(size = 6, fill = "#440154", color = "black", shape = 21) + geom_smooth(method = "lm", se = F, color = "black") + theme_pubr() +  theme(legend.title = element_blank(),
+        legend.position = "", legend.text = element_text(face = "italic"),
+        axis.title=element_text(size=18),axis.text=element_text(size=14)) +
+  xlab("Individual Pairwise \n Geographic Distance") +
+  ylab("Individual Pairwise \n Genetic Distance") +
+  annotate("text", x = 10, y = 0.001, label = expression(italic(r)^2 == 0.3494), size = 6) +
+annotate("text", x = 18, y = 0.001, label = expression(italic(p) > 0.05), size = 6)
+
+plot_ibd_pur
+
+
+IBD_pur <- vegan::mantel(Dgen_pur,Dgeo_pur, method="spearman", na.rm = T)
+IBD_pur
+
+ggsave("25gt_purpura_ibd.pdf", path = "./../../Figures/", plot = plot_ibd_pur, dpi =320, width =6, height = 4 )
+
+strata_comm_clean$origin <- as.factor(strata_comm_clean$origin) 
+```
