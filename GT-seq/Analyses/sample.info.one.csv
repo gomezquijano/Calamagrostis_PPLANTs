@@ -1,0 +1,170 @@
+﻿num,ID,Sample,Species,origin,lat,long,pop,region
+1,6042C1,1_1A,Calamagrostis stricta ssp inexpansa,Wild,69.30779,-134.53667,"Mackenzie Delta/uplands, NT; Dennis Lake DLSL2",MD
+2,5PAC,1_1B,Calamagrostis canadensis,Commercial,,,5PAC,PA
+3,10UTC,1_1C,Calamagrostis canadensis,Commercial,,,10UTC,UT
+4,6MB1C,1_1D,Calamagrostis canadensis,Commercial,,,6MB1C,MB1
+5,6022C1,1_1E,Calamagrostis stricta ssp inexpansa,Wild,68.95557,-133.83975,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL3",MD
+6,59COC1,1_1F,Calamagrostis canadensis,Commercial,,,59COC1,CO
+7,6099C,1_1G,Calamagrostis canadensis,Wild,68.35995,-133.69868,"Inuvik, NT; COater Tower Trail near trail entrance",IK
+8,1MB2C,1_1H,Calamagrostis canadensis,Commercial,,,1MB2C,MB2
+9,17MB1C,1_2A,Calamagrostis canadensis,Commercial,,,17MB1C,MB1
+10,6207C,1_2B,Calamagrostis purpurascens,Wild,62.85614,-115.9775,"Behchokǫ̀, NT;",BE
+11,200750C1,1_2C,Calamagrostis stricta ssp inexpansa,Wild,61.03348,-113.6888,"Fort Resolution, NT; FR2",FR
+12,200776C1,1_2D,Calamagrostis canadensis,Wild,61.26636,-113.58418,"Fort Resolution, NT; FR12",FR
+13,5031C1,1_2E,Calamagrostis sp,Wild,68.3623,-133.75005,"Inuvik, NT; Old Airport",IK
+14,48MNC,1_2F,Calamagrostis canadensis,Commercial,,,48MNC,MN
+15,6055C1,1_2G,Calamagrostis canadensis,Wild,69.18349,-134.84167,"Mackenzie Delta/uplands, NT; Unknown Slump 1",MD
+16,6080C1,1_2H,Calamagrostis canadensis,Wild,68.53817,-133.6562,"Mackenzie Delta/uplands, NT; Noel Lake NLSL2",MD
+17,6069C1,1_3A,Calamagrostis canadensis,Wild,68.60812,-133.58481,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL1- T4",MD
+18,6080C2,1_3B,Calamagrostis canadensis,Wild,68.53817,-133.6562,"Mackenzie Delta/uplands, NT; Noel Lake NLSL2",MD
+19,15AKC,1_3C,Calamagrostis canadensis,Commercial,,,15AKC,AK
+20,6076C,1_3D,Calamagrostis purpurascens,Wild,68.55935,-133.30504,"Mackenzie Delta/uplands, NT; Noel Lake NLSL1",MD
+21,6149C1,1_3E,Calamagrostis stricta ssp inexpansa,Wild,66.24059,-128.63382,"Fort Good Hope, NT; FGH-3 near airport",FH
+22,13MB1C,1_3F,Calamagrostis canadensis,Commercial,,,13MB1C,MB1
+23,,1_3G,,,,,,
+24,6028C1,1_3H,Calamagrostis stricta ssp inexpansa,Wild,68.95895,-133.83936,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL4",MD
+25,200756C1,1_4A,Calamagrostis canadensis,Wild,61.03272,-113.68217,"Fort Resolution, NT; FR3",FR
+26,6013C,1_4B,Calamagrostis sp,Wild,,,6013C,
+27,6087C1,1_4C,Calamagrostis canadensis,Wild,68.51524,-133.65129,"Mackenzie Delta/uplands, NT; Noel Lake NLSL3",MD
+28,6218C,1_4D,Calamagrostis purpurascens,Wild,62.77522,-116.06185,"Behchokǫ̀, NT;",BE
+29,6064C1,1_4E,Calamagrostis stricta ssp inexpansa,Wild,68.99266,-133.73108,"Mackenzie Delta/uplands, NT; Unknown Slump 3",MD
+30,6073C1,1_4F,Calamagrostis stricta ssp inexpansa,Wild,68.59259,-133.60715,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL3",MD
+31,6152C1,1_4G,Calamagrostis stricta ssp inexpansa,Wild,66.23859,-128.62541,"Fort Good Hope, NT; FGH-5",FH
+32,17UTC,1_4H,Calamagrostis canadensis,Commercial,,,17UTC,UT
+33,6077C,1_5A,Calamagrostis purpurascens,Wild,68.55935,-133.30504,"Mackenzie Delta/uplands, NT; Noel Lake NLSL1 off slump",MD
+34,2MNC,1_5B,Calamagrostis canadensis,Commercial,,,2MNC,MN
+35,6069C2,1_5C,Calamagrostis canadensis,Wild,68.60812,-133.58481,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL1- T4",MD
+36,24MB2C,1_5D,Calamagrostis canadensis,Commercial,,,24MB2C,MB2
+37,86UTC1,1_5E,Calamagrostis canadensis,Commercial,,,86UTC1,UT
+38,15MB2C,1_5F,Calamagrostis canadensis,Commercial,,,15MB2C,MB2
+39,6152C2,1_5G,Calamagrostis stricta ssp inexpansa,Wild,66.23859,-128.62541,"Fort Good Hope, NT; FGH-5",FH
+40,6UTC,1_5H,Calamagrostis canadensis,Commercial,,,6UTC,UT
+41,20AKC,1_6A,Calamagrostis canadensis,Commercial,,,20AKC,AK
+42,6064C2,1_6B,Calamagrostis stricta ssp inexpansa,Wild,68.99266,-133.73108,"Mackenzie Delta/uplands, NT; Unknown Slump 3",MD
+43,12AKC,1_6C,Calamagrostis canadensis,Commercial,,,12AKC,AK
+44,7COC,1_6D,Calamagrostis canadensis,Commercial,,,7COC,CO
+45,6149C2,1_6E,Calamagrostis stricta ssp inexpansa,Wild,66.24059,-128.63382,"Fort Good Hope, NT; FGH-3 near airport",FH
+46,200788C1,1_6F,Calamagrostis canadensis,Wild,61.35377,-113.41176,"Fort Resolution, NT; FR19",FR
+47,17MB2C,1_6G,Calamagrostis canadensis,Commercial,,,17MB2C,MB2
+48,15MB1C,1_6H,Calamagrostis canadensis,Commercial,,,15MB1C,MB1
+49,17COC,1_7A,Calamagrostis canadensis,Commercial,,,17COC,CO
+50,532C,1_7B,Calamagrostis stricta ssp inexpansa,Wild,,,532C,
+51,6007C1,1_7C,Calamagrostis canadensis,Wild,68.35995,-133.69868,"Inuvik, NT; COater Tower Trail near trail entrance",IK
+52,6061C,1_7D,Calamagrostis canadensis,Wild,69.11643,-134.21138,"Mackenzie Delta/uplands, NT; Unknown Slump 2",MD
+53,4MB2C,1_7E,Calamagrostis canadensis,Commercial,,,4MB2C,MB2
+54,6088C1,1_7F,Calamagrostis stricta ssp inexpansa,Wild,68.51524,-133.65129,"Mackenzie Delta/uplands, NT; Noel Lake NLSL3",MD
+55,200756C2,1_7G,Calamagrostis canadensis,Wild,61.03272,-113.68217,"Fort Resolution, NT; FR3",FR
+56,,1_7H,,,,,,
+57,16MNC,1_8A,Calamagrostis canadensis,Commercial,,,16MNC,MN
+58,6COC,1_8B,Calamagrostis canadensis,Commercial,,,6COC,CO
+59,18MB2C,1_8C,Calamagrostis canadensis,Commercial,,,18MB2C,MB2
+60,1COC,1_8D,Calamagrostis canadensis,Commercial,,,1COC,CO
+61,,1_8E,,,,,,
+62,6088C2,1_8F,Calamagrostis stricta ssp inexpansa,Wild,68.51524,-133.65129,"Mackenzie Delta/uplands, NT; Noel Lake NLSL3",MD
+63,20078C1,1_8G,Calamagrostis canadensis,Wild,60.194525,-123.33792,"Liard, NT; LRDS1",LD
+64,6017C1,1_8H,Calamagrostis stricta ssp inexpansa,Wild,68.95812,-133.83787,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL1- off slump",MD
+65,6007C2,1_9A,Calamagrostis canadensis,Wild,68.35995,-133.69868,"Inuvik, NT; COater Tower Trail near trail entrance",IK
+66,6152C3,1_9B,Calamagrostis stricta ssp inexpansa,Wild,66.23859,-128.62541,"Fort Good Hope, NT; FGH-5",FH
+67,19UTC,1_9C,Calamagrostis canadensis,Commercial,,,19UTC,UT
+68,3MB2C,1_9D,Calamagrostis canadensis,Commercial,,,3MB2C,MB2
+69,535C,1_9E,Calamagrostis sp,Wild,,,535C,IK
+70,6184C,1_9F,Calamagrostis stricta ssp inexpansa,Wild,64.89792,-125.54884,"Tulita, NT; TU-12",TT
+71,10MB2C,1_9G,Calamagrostis canadensis,Commercial,,,10MB2C,MB2
+72,6136C1,1_9H,Calamagrostis stricta ssp inexpansa,Wild,66.29205,-128.62532,"Fort Good Hope, NT; FGH- HARE INDIAN RIVPA",FH
+73,20MB1C,1_10A,Calamagrostis canadensis,Commercial,,,20MB1C,MB1
+74,7MB1C,1_10B,Calamagrostis canadensis,Commercial,,,7MB1C,MB1
+75,11UNC,1_10C,Calamagrostis canadensis,Commercial,,,11UNC,UN
+76,6017C2,1_10D,Calamagrostis stricta ssp inexpansa,Wild,68.95812,-133.83787,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL1- off slump",MD
+77,8MNC,1_10E,Calamagrostis canadensis,Commercial,,,8MNC,MN
+78,6136C2,1_10F,Calamagrostis stricta ssp inexpansa,Wild,66.29205,-128.62532,"Fort Good Hope, NT; FGH- HARE INDIAN RIVPA",FH
+79,6PAC,1_10G,Calamagrostis canadensis,Commercial,,,6PAC,PA
+80,24AKC,1_10H,Calamagrostis canadensis,Commercial,,,24AKC,AK
+81,200712C1,1_11A,Calamagrostis canadensis,Wild,60.33197,-123.31073,"Liard, NT; LRDN2",LD
+82,3UNC,1_11B,Calamagrostis canadensis,Commercial,,,3UNC,UN
+83,14MB1C,1_11C,Calamagrostis canadensis,Commercial,,,14MB1C,MB1
+84,200724C,1_11D,Calamagrostis stricta ssp inexpansa,Wild,60.06925,-122.99525,"Liard, NT; LRDMB15",LD
+85,19MB1C,1_11E,Calamagrostis canadensis,Commercial,,,19MB1C,MB1
+86,6202C1,1_11F,Calamagrostis stricta ssp inexpansa,Wild,62.66019,-115.30746,"Yellowknife, NT; YK-4",YK
+87,1UTC,1_11G,Calamagrostis canadensis,Commercial,,,1UTC,UT
+88,48MB2C,1_11H,Calamagrostis canadensis,Commercial,,,48MB2C,MB2
+89,13UNC,1_12A,Calamagrostis canadensis,Commercial,,,13UNC,UN
+90,200776C2,1_12B,Calamagrostis canadensis,Wild,61.26636,-113.58418,"Fort Resolution, NT; FR12",FR
+91,6221C,1_12C,Calamagrostis sp,Wild,,,6221C,
+92,200762C1,1_12D,Calamagrostis purpurascens,Wild,60.96264,-114.15333,"Fort Resolution, NT; FR8",FR
+93,3COC,1_12E,Calamagrostis canadensis,Commercial,,,3COC,CO
+94,6055C2,1_12F,Calamagrostis canadensis,Wild,69.18349,-134.84167,"Mackenzie Delta/uplands, NT; Unknown Slump 1",MD
+95,6093C1,1_12G,Calamagrostis purpurascens,Wild,68.30271,-133.53157,"Inuvik, NT; Airport Lake Gravel Pit",IK
+96,6190C,1_12H,Calamagrostis stricta ssp inexpansa,Wild,62.76939,-116.06536,"Behchokǫ̀, NT;",BE
+97,1UNC,2_1A,Calamagrostis canadensis,Commercial,,,1UNC,UN
+98,6088C3,2_1B,Calamagrostis stricta ssp inexpansa,Wild,68.51524,-133.65129,"Mackenzie Delta/uplands, NT; Noel Lake NLSL3",MD
+99,6103C1,2_1C,Calamagrostis canadensis,Wild,67.85641,-133.66493,"Inuvik, NT; Lynx Creek south of town within an old burn site",IK
+100,86UTC2,2_1D,Calamagrostis canadensis,Commercial,,,86UTC2,UT
+101,4COC,2_1E,Calamagrostis canadensis,Commercial,,,4COC,CO
+102,6136C3,2_1F,Calamagrostis stricta ssp inexpansa,Wild,66.29205,-128.62532,"Fort Good Hope, NT; FGH- HARE INDIAN RIVPA",FH
+103,6024C,2_1G,Calamagrostis sp,Wild,,,6024C,
+104,18AKC,2_1H,Calamagrostis canadensis,Commercial,,,18AKC,AK
+105,3MB1C,2_2A,Calamagrostis canadensis,Commercial,,,3MB1C,MB1
+106,1AKC,2_2B,Calamagrostis canadensis,Commercial,,,1AKC,AK
+107,6009C1,2_2C,Calamagrostis stricta ssp inexpansa,Wild,68.95812,-133.83787,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL1",MD
+108,5031C2,2_2D,Calamagrostis sp,Wild,68.3623,-133.75005,"Inuvik, NT; Old Airport",IK
+109,6028C2,2_2E,Calamagrostis stricta ssp inexpansa,Wild,68.95895,-133.83936,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL4",MD
+110,200762C2,2_2F,Calamagrostis purpurascens,Wild,60.96264,-114.15333,"Fort Resolution, NT; FR8",FR
+111,7UTC,2_2G,Calamagrostis canadensis,Commercial,,,7UTC,UT
+112,49MNC,2_2H,Calamagrostis canadensis,Commercial,,,49MNC,MN
+113,6042C2,2_3A,Calamagrostis stricta ssp inexpansa,Wild,69.30779,-134.53667,"Mackenzie Delta/uplands, NT; Dennis Lake DLSL2",MD
+114,6073C2,2_3B,Calamagrostis stricta ssp inexpansa,Wild,68.59259,-133.60715,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL3",MD
+115,6065C1,2_3C,Calamagrostis stricta ssp inexpansa,Wild,68.9809,-133.83934,"Mackenzie Delta/uplands, NT; Adjacent to UNSL3- off slump",MD
+116,6009C2,2_3D,Calamagrostis stricta ssp inexpansa,Wild,68.95812,-133.83787,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL1",MD
+117,16UNC,2_3E,Calamagrostis canadensis,Commercial,,,16UNC,UN
+118,,2_3F,,,,,,
+119,,2_3G,,,,,,
+120,6080C3,2_3H,Calamagrostis canadensis,Wild,68.53817,-133.6562,"Mackenzie Delta/uplands, NT; Noel Lake NLSL2",MD
+121,86UTC,2_4A,Calamagrostis canadensis,Commercial,,,86UTC,UT
+122,6065C2,2_4B,Calamagrostis stricta ssp inexpansa,Wild,68.9809,-133.83934,"Mackenzie Delta/uplands, NT; Adjacent to UNSL3- off slump",MD
+123,6103C2,2_4C,Calamagrostis canadensis,Wild,67.85641,-133.66493,"Inuvik, NT; Lynx Creek south of town within an old burn site",IK
+124,6194C,2_4D,Calamagrostis purpurascens,Wild,62.67427,-116.16532,"Behchokǫ̀, NT;",BE
+125,11MB2C,2_4E,Calamagrostis canadensis,Commercial,,,11MB2C,MB2
+126,15UNC,2_4F,Calamagrostis canadensis,Commercial,,,15UNC,UN
+127,6016C,2_4G,Calamagrostis sp,Wild,,,6016C,
+128,14MNC,2_4H,Calamagrostis canadensis,Commercial,,,14MNC,MN
+129,17AKC,2_5A,Calamagrostis canadensis,Commercial,,,17AKC,AK
+130,6071C1,2_5B,Calamagrostis stricta ssp inexpansa,Wild,68.60849,-133.59048,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL2",MD
+131,200735C1,2_5C,Calamagrostis canadensis,Wild,61.40034,-120.58364,"Jean Marie River, NT; JM2",JM
+132,6093C2,2_5D,Calamagrostis purpurascens,Wild,68.30271,-133.53157,"Inuvik, NT; Airport Lake Gravel Pit",IK
+133,,2_5E,,,,,,
+134,9AKC,2_5F,Calamagrostis canadensis,Commercial,,,9AKC,AK
+135,20078C2,2_5G,Calamagrostis canadensis,Wild,60.194525,-123.33792,"Liard, NT; LRDS1",LD
+136,19MB2C,2_5H,Calamagrostis canadensis,Commercial,,,19MB2C,MB2
+137,6116C1,2_6A,Calamagrostis stricta ssp inexpansa,Wild,,,"Inuvik, NT; Ski Trails",IK
+138,6202C2,2_6B,Calamagrostis stricta ssp inexpansa,Wild,62.66019,-115.30746,"Yellowknife, NT; YK-4",YK
+139,10UNC,2_6C,Calamagrostis canadensis,Commercial,,,10UNC,UN
+140,10MNC,2_6D,Calamagrostis canadensis,Commercial,,,10MNC,MN
+141,6225C1,2_6E,Calamagrostis canadensis,Wild,62.78052,-116.01386,"Behchokǫ̀, NT;",BE
+142,6027C,2_6F,Calamagrostis sp,Wild,,,6027C,
+143,6056C,2_6G,Calamagrostis stricta ssp inexpansa,Wild,69.18349,-134.84167,"Mackenzie Delta/uplands, NT; Unknown Slump 1",MD
+144,12UNC,2_6H,Calamagrostis canadensis,Commercial,,,12UNC,UN
+145,10AKC,2_7A,Calamagrostis canadensis,Commercial,,,10AKC,AK
+146,6130C1,2_7B,Calamagrostis stricta ssp inexpansa,Wild,69.44182,-134.59932,"Mackenzie Delta/uplands, NT; C4- COAST",MD
+147,200712C2,2_7C,Calamagrostis canadensis,Wild,60.33197,-123.31073,"Liard, NT; LRDN2",LD
+148,200735C2,2_7D,Calamagrostis canadensis,Wild,61.40034,-120.58364,"Jean Marie River, NT; JM2",JM
+149,19MNC,2_7E,Calamagrostis canadensis,Commercial,,,19MNC,MN
+150,6071C2,2_7F,Calamagrostis stricta ssp inexpansa,Wild,68.60849,-133.59048,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL2",MD
+151,6130C2,2_7G,Calamagrostis stricta ssp inexpansa,Wild,69.44182,-134.59932,"Mackenzie Delta/uplands, NT; C4- COAST",MD
+152,,2_7H,,,,,,
+153,6069C3,2_8A,Calamagrostis canadensis,Wild,68.60812,-133.58481,"Mackenzie Delta/uplands, NT; Jimmy Lake JLSL1- T4",MD
+154,200750C2,2_8B,Calamagrostis stricta ssp inexpansa,Wild,61.03348,-113.6888,"Fort Resolution, NT; FR2",FR
+155,6116C2,2_8C,Calamagrostis stricta ssp inexpansa,Wild,,,"Inuvik, NT; Ski Trails",IK
+156,2UTC,2_8D,Calamagrostis canadensis,Commercial,,,2UTC,UT
+157,6087C2,2_8E,Calamagrostis canadensis,Wild,68.51524,-133.65129,"Mackenzie Delta/uplands, NT; Noel Lake NLSL3",MD
+158,6211C,2_8F,Calamagrostis purpurascens,Wild,62.61879,-116.26239,"Behchokǫ̀, NT;",BE
+159,200758C,2_8G,Calamagrostis sp,Wild,,,200758C,
+160,19COC,2_8H,Calamagrostis canadensis,Commercial,,,19COC,CO
+161,59COC2,2_9A,Calamagrostis canadensis,Commercial,,,59COC2,CO
+162,200788C2,2_9B,Calamagrostis canadensis,Wild,61.35377,-113.41176,"Fort Resolution, NT; FR19",FR
+163,6022C2,2_9C,Calamagrostis stricta ssp inexpansa,Wild,68.95557,-133.83975,"Mackenzie Delta/uplands, NT; Parson's Lake AKSL3",MD
+164,11AKC,2_9D,Calamagrostis canadensis,Commercial,,,11AKC,AK
+165,11MNC,2_9E,Calamagrostis canadensis,Commercial,,,11MNC,MN
+166,6090C,2_9F,Calamagrostis canadensis,Wild,68.3623,-133.75005,"Inuvik, NT; Old Airport",IK
+167,1PAC,2_9G,Calamagrostis canadensis,Commercial,,,1PAC,PA
+168,200764C,2_9H,Calamagrostis sp,Wild,,,200764C,
+169,6225C2,2_10A,Calamagrostis canadensis,Wild,62.78052,-116.01386,"Behchokǫ̀, NT;",BE
