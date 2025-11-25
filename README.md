@@ -18,7 +18,8 @@ This repositopry contains the data files for the manuscript submitted to [**inse
 
 2. **ddRAD-seq**
    - Raw ddRAD-seq data  
-   - Analysis pipeline  
+   - Analysis pipeline
+   - Scripts 
 
 3. **GT-seq**
    - Primers and probes  
