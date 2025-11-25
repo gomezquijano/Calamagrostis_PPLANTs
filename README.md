@@ -21,5 +21,3 @@ The files contain:
 5. Raw GT-seq data
 6. Modified GT-seq genotyping scripts
 7. GT-seq analysis pipeline
-
-testing push changes
