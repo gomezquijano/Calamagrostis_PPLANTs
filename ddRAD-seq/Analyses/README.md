@@ -4,11 +4,11 @@
 
 ### File description:
 
-  1. `calam_info.csv` : Sample sheet of sequenced individuals columns include:
+1. `calam_info.csv` : Sample sheet of sequenced individuals columns include:
 
 ID	| sample_no	| species	| lat	| long	| loc_town	| loc_terr	| region	| is_commercial	| pop	| order| 	pop_spec	| Label
 
-  2 . `ddRad_Analysis_allspecies.Rmd` : Rmarkdown file containing the complete analysis pipeline
+2 . `ddRad_Analysis_allspecies.Rmd` : Rmarkdown file containing the complete analysis pipeline
 
 This pipeline analyzes SNP data from three *Calamagrostis* species collected in the Northwest Territories, Canada, plus commercial *C. canadensis* cultivars. Analyses include:
 
