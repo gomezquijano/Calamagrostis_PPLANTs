@@ -26,3 +26,10 @@ This repositopry contains the data files for the manuscript submitted to [**inse
    - Raw GT-seq data  
    - Modified genotyping scripts  
    - Analysis pipeline  
+
+### Manuscript pre-print:
+
+Genome-wide SNP diversity in natural and cultivated populations informs restoration ecology with three Calamagrostis species from the Northwest Territories of Canada
+Maria Jose Gomez Quijano, Yihan Wu, Claire Smith, Adriana Villalobos-Lopez, Pippa Secombe-Hett, Nathan Campbell, Zhengxin Sun, Robert I. Colautti
+bioRxiv 2025.12.10.693508; doi: https://doi.org/10.64898/2025.12.10.693508
+
