@@ -4,7 +4,7 @@
 **File organization:**
 
 1. Raw GT-seq data and Genotypes
-2. Primers (targeter loci primer info)
+2. Primers (target loci primer info)
 3. Scripts (modivied Genotyper script for GT-seq pipeline)
 4. Analysis (Complete downstream data analysis of species identity and population differentiation)
 
