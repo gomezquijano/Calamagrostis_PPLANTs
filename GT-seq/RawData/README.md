@@ -1,3 +1,3 @@
 ## Data Availability:
 
-The raw sequencing data can be downloaded from the NCBI BioProject accession: 
+The raw sequencing data can be downloaded from the NCBI BioProject accession: **PRJNA1373265**
