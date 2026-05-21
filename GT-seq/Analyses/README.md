@@ -7,7 +7,7 @@ num |	ID	| Sample | Species	| origin	| lat	| long	| pop	| region
 
 2. `IDs_for_subset.csv` --> Sample ID of individuals used for the "validation" dataset
 
-3. GT-seq_uptodatepipeline_downstream.Rmd : Rmarkdown file containing the complete analysis pipeline of GT-seq genotypes
+3. `GT-seq_uptodatepipeline_downstream.Rmd` : Rmarkdown file containing the complete analysis pipeline of GT-seq genotypes
 
 This pipeline analyzes SNP data from three Calamagrostis species collected in the Northwest Territories, Canada, plus commercial C. canadensis cultivars. Analyses include:
 
