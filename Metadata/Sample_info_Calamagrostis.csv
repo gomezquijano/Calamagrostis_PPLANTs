@@ -5,7 +5,7 @@ Calamagrostis canadensis,Wild,61.03272,-113.68217,200756,FR,"Fort Resolution, NT
 Calamagrostis canadensis,Wild,61.26636,-113.58418,200776,FR,"Fort Resolution, NT",2,ddRAD / GT-seq,Calamagrostis canadensis
 Calamagrostis canadensis,Wild,61.35377,-113.41176,200788,FR,"Fort Resolution, NT",2,ddRAD / GT-seq,Calamagrostis canadensis
 Calamagrostis canadensis,Wild,61.40034,-120.58364,200735,JM,"Jean Marie River, NT",2,GT-seq,Calamagrostis canadensis /  Calamagrostis stricta ssp. inexpansa
-Calamagrostis canadensis,Wild,62.78052,-116.01386,6225,RZ,"Rae Edzo, NT",2,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Wild,62.78052,-116.01386,6225,BE,"Behchokǫ̀, NT",2,GT-seq,Calamagrostis canadensis
 Calamagrostis canadensis,Wild,67.85641,-133.66493,6103,IK,"Inuvik, NT",2,GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis canadensis,Wild,68.35995,-133.69868,6099,IK,"Inuvik, NT",1,ddRAD / GT-seq,Calamagrostis canadensis
 Calamagrostis canadensis,Wild,68.35995,-133.69868,6007,IK,"Inuvik, NT",2,ddRAD / GT-seq,Calamagrostis canadensis
@@ -17,10 +17,10 @@ Calamagrostis canadensis,Wild,69.11643,-134.21138,6061,MD,"Mackenzie Delta/uplan
 Calamagrostis canadensis,Wild,69.18349,-134.84167,6055,MD,"Mackenzie Delta/uplands, NT",2,ddRAD / GT-seq,Calamagrostis canadensis
 Calamagrostis purpurascens,Wild,60.73165,-115.26965,200739,HR,"Hay River, NT",1,ddRAD,NA
 Calamagrostis purpurascens,Wild,60.96264,-114.15333,200762,FR,"Fort Resolution, NT",2,ddRAD / GT-seq,Calamagrostis purpurascens
-Calamagrostis purpurascens,Wild,62.61879,-116.26239,6211,RE,"Rae, NT",1,ddRAD / GT-seq,Calamagrostis purpurascens
-Calamagrostis purpurascens,Wild,62.67427,-116.16532,6194,EZ,"Edzo, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
-Calamagrostis purpurascens,Wild,62.77522,-116.06185,6218,RZ,"Rae Edzo, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
-Calamagrostis purpurascens,Wild,62.85614,-115.9775,6207,RE,"Rae, NT",1,GT-seq,Calamagrostis purpurascens
+Calamagrostis purpurascens,Wild,62.61879,-116.26239,6211,BE,"Behchokǫ̀, NT",1,ddRAD / GT-seq,Calamagrostis purpurascens
+Calamagrostis purpurascens,Wild,62.67427,-116.16532,6194,BE,"Behchokǫ̀, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
+Calamagrostis purpurascens,Wild,62.77522,-116.06185,6218,BE,"Behchokǫ̀, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
+Calamagrostis purpurascens,Wild,62.85614,-115.9775,6207,BE,"Behchokǫ̀, NT",1,GT-seq,Calamagrostis purpurascens
 Calamagrostis purpurascens,Wild,66.24059,-128.63382,6150,FH,"Fort Good Hope, NT",1,ddRAD,NA
 Calamagrostis purpurascens,Wild,68.30271,-133.53157,6093,IK,"Inuvik, NT",2,ddRAD / GT-seq,Calamagrostis purpurascens
 Calamagrostis purpurascens,Wild,68.55935,-133.30504,6076,MD,"Mackenzie Delta/uplands, NT",1,GT-seq,Calamagrostis stricta ssp. inexpansa
@@ -28,7 +28,7 @@ Calamagrostis purpurascens,Wild,68.55935,-133.30504,6077,MD,"Mackenzie Delta/upl
 Calamagrostis stricta ssp. inexpansa,Wild,60.06925,-122.99525,200724,LD,"Liard, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis stricta ssp. inexpansa,Wild,61.03348,-113.6888,200750,FR,"Fort Resolution, NT",2,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis stricta ssp. inexpansa,Wild,62.66019,-115.30746,6202,YK,"Yellowknife, NT",2,GT-seq,Calamagrostis canadensis
-Calamagrostis stricta ssp. inexpansa,Wild,62.76939,-116.06536,6190,EZ,"Edzo, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
+Calamagrostis stricta ssp. inexpansa,Wild,62.76939,-116.06536,6190,BE,"Behchokǫ̀, NT",1,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis stricta ssp. inexpansa,Wild,64.89792,-125.54884,6184,TT,"Tulita, NT",1,GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis stricta ssp. inexpansa,Wild,66.23859,-128.62541,6152,FH,"Fort Good Hope, NT",3,GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis stricta ssp. inexpansa,Wild,66.24059,-128.63382,6149,FH,"Fort Good Hope, NT",2,ddRAD / GT-seq,Calamagrostis stricta ssp. inexpansa
@@ -56,12 +56,12 @@ Calamagrostis sp,Wild,Unknown,Unknown,6016,Unknown,Unknown,1,GT-seq,Calamagrosti
 Calamagrostis sp,Wild,Unknown,Unknown,6027,Unknown,Unknown,1,GT-seq,Calamagrostis purpurascens
 Calamagrostis sp,Wild,Unknown,Unknown,200758,Unknown,Unknown,1,GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis sp,Wild,Unknown,Unknown,200764,Unknown,Unknown,1,GT-seq,Calamagrostis stricta ssp. inexpansa
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Ernst Conservation Seeds,ER,"Pennsilvania, USA*",3,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Granite Seed and Erosion,GR,"Utah, USA*",10,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Brett Young,B,"Mannitoba, CAN*",9,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Western Native Seed,W,"Colorado, USA*",9,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Prairie Originals,P,"Mannitoba, CAN*",11,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,"Prairie Restorations, Inc.",PR,"Minnesota, USA*",9,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,Plant Materials Center,PL,"Alaska, USA*",10,GT-seq,Calamagrostis canadensis
-Calamagrostis canadensis,Commercial,Unknown,Unknown,"Pickseed CDA, Inc.",PI,Unknown,8,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Ernst Conservation Seeds,PA,"Pennsilvania, USA*",3,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Granite Seed and Erosion,UT,"Utah, USA*",10,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Brett Young,MB1,"Mannitoba, CAN*",9,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Western Native Seed,CO,"Colorado, USA*",9,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Prairie Originals,MB2,"Mannitoba, CAN*",11,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,"Prairie Restorations, Inc.",MN,"Minnesota, USA*",9,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,Plant Materials Center,AK,"Alaska, USA*",10,GT-seq,Calamagrostis canadensis
+Calamagrostis canadensis,Commercial,Unknown,Unknown,"Pickseed CDA, Inc.",UK,Unknown,8,GT-seq,Calamagrostis canadensis
    * Indicates the location of the commercial cultivar. Information about seed sources such as coordinates or region was not available.,,,,,,,,,
