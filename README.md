@@ -14,7 +14,7 @@ This repositopry contains the data files for the manuscript submitted to [**inse
 
 ### The files contain:
 
-1. **Metadata for sampled populations**
+1. [**Metadata for sampled populations**] (https://github.com/gomezquijano/Calamagrostis_PPLANTs/tree/main/Metadata)
 
 2. **ddRAD-seq**
    - Raw ddRAD-seq data  
