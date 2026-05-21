@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This is a complete analysis pipeline of genetic structure of three species of *Calamagrostis* collected from the North West Territories
 
-## Loading data
+## Loading Libraries
 
 ```{r, include=FALSE}
 library(vcfR)
@@ -34,6 +34,8 @@ library(LEA)
 library(tidyr)
 library(dartR.base)
 ```
+
+## Loading SNPs and population information 
 
 ```{r}
 calam_snps <- vcfR::read.vcfR("final.calamagrostis.snps.recode.vcf")
@@ -58,7 +60,7 @@ ind_pops <- ind_pops[ind_pops$sample_no %in% indNames(calam_gen),]
 
 let's look at what species we will be working with:
 
-In this dataset we have also a couple of commercial individuals, we will eventually remove them but for now I want to leave them here to see how they look on a PCA
+In this dataset we have also a couple of commercial **C. canadensis** individuals, we will eventually remove them but for now I want to leave them here to see how they look on a PCA
 
 ```{r}
 knitr::kable(table(ind_pops$species), col.names = c("Species", "Number of Individuals"))
@@ -256,16 +258,21 @@ knitr::kable(stat_tbl)
 
 ## FST
 
+Calculating global FST
 ```{r}
 wc(calam_hier)
 ```
 
+Calculating species pairwise FST using Nei's FST and Weir and Cockerham FST
 ```{r}
 spec.matFst <- pairwise.neifst(calam_hier)
 spec.matFst
+
+spec.matWCFst <- pairwise.neifst(calam_hier)
+spec.matWCFst
 ```
 
-Let's create a little tree?
+Lastly, let's create a Neighbour Joining tree to look at genetic distance between species.
 
 ```{r}
 color.tree <- c("#440154", "#31688e","#35b779" )
