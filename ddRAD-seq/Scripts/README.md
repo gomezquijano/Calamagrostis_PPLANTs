@@ -2,7 +2,7 @@
 
 **File name:** manual_pipeline_script.sh
 
-**File description:** the `manual_pipeline_script.sh` scrip contais a complete pipeline to run all STACKS steps for genotype calling of *Calamagrostis* inidividuals sequenced with ddRAD. Within the scripts there are commands to run:
+**File description:** the `manual_pipeline_script.sh` script contais a complete pipeline to run all STACKS steps for genotype calling of *Calamagrostis* inidividuals sequenced with ddRAD. Within the scripts there are commands to run:
   1. **USTACKS:** builds loci *de novo* in each sample
   2. **CSTACKS:** creates a catalog of all loci across the population. Loci are matched up across samples according to sequence similarity.
   3. **SSTACKS:** matches each sample against the catalog
