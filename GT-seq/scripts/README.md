@@ -11,7 +11,11 @@ in short the pipeline consists of:
 *Form GTseq-pipeline GitHub:
 
 1- Split raw fastq sequence file into individual fastq files using dual index sequences.
+
 2- Optional: Test plate fastq sequence files for the presence of forward primers and probes using the GTseq_SeqTest.pl script.
-3- Genotype individuals 
+
+3- Genotype individuals.
+
 4- Compile genotypes from individual .genos files to a single .csv file.
+
 5- Optional: Compile read count data for each sample at each locus.
