@@ -7,6 +7,5 @@ This file is required to run the modified `GTseq_Genotyper_v3_MJ.pl` script for 
 
 `GTseq_i5_i7_ID.csv` --> CSV file containing i5 and i7 indexes used for multiplexing. i5 index serves as an individual barcode, while i7 is used per plate creating a unique individual + plate combination. 
 
-Columns are as follows:
-
+Columns are:
 Sample	| PlateID	| i7_name	| i7_sequence	| i5_name	| i5_sequence
