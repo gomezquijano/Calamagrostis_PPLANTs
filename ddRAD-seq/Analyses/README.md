@@ -1,5 +1,5 @@
 
-## Rsutidio analysis pipeline of filtered SNPS from ddRAD of Calamagrostis individuals collected from wild population in the Northwest Territories of Canada
+## R Studio analysis pipeline of filtered SNPS from ddRAD of Calamagrostis individuals collected from wild population in the Northwest Territories of Canada
 
 
 ### File description:
