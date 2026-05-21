@@ -1,4 +1,4 @@
-Species (Field Identification),Origin,Latitude,Longitude,Population Code,Region Code,Source,Number of Individuals,Sequencing Method,Genomic LFDA species prediction
+Species (Field Identification),Origin,Latitude,Longitude,Accession/Collection Code,Population Code,Population Name,Number of Individuals,Sequencing Method,Genomic LFDA species prediction
 Calamagrostis canadensis,Wild,60.194525,-123.33792,20078,LD,"Liard, NT",2,GT-seq,Calamagrostis stricta ssp. inexpansa
 Calamagrostis canadensis,Wild,60.33197,-123.31073,200712,LD,"Liard, NT",2,ddRAD / GT-seq,Calamagrostis canadensis
 Calamagrostis canadensis,Wild,61.03272,-113.68217,200756,FR,"Fort Resolution, NT",2,GT-seq,Calamagrostis canadensis / Calamagrostis stricta ssp. inexpansa
