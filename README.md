@@ -33,3 +33,6 @@ Genome-wide SNP diversity in natural and cultivated populations informs restorat
 Maria Jose Gomez Quijano, Yihan Wu, Claire Smith, Adriana Villalobos-Lopez, Pippa Secombe-Hett, Nathan Campbell, Zhengxin Sun, Robert I. Colautti
 bioRxiv 2025.12.10.693508; doi: https://doi.org/10.64898/2025.12.10.693508
 
+#### Author Contact:
+
+**Maria Jose Gomez Quijano:** 21mjgq@queensu.ca / mariajose.gomez@utoronto.ca
