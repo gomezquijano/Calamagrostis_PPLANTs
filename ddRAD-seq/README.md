@@ -4,7 +4,7 @@
 
   1. Raw ddRAD-seq data
   2. Analysis pipeline
-  3. Scripts
+  3. SNP Calling Scripts uisng STACKS
 
 #### Sequencig Details: 
 
