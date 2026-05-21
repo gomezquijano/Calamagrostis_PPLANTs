@@ -12,4 +12,4 @@
 
 TO run these scripts with your own data please modify the directory paths (`reads_dir=` and `out_dir=`). 
 
-For more information about each command and STACKS visit: (https://catchenlab.life.illinois.edu/stacks/)
+For more information about each command and STACKS visit: https://catchenlab.life.illinois.edu/stacks/
