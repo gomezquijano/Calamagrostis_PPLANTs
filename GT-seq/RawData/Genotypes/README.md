@@ -1,7 +1,7 @@
 
 ### Data Files and Column descriptions:
 
-1. `Subset_Compiled_Genotypes_0924_V4_N.csv` --> This dataset contains the same individuals who were sequenced using GT-seq plus some technical replicates. These individuals were used to test the GT-seq Primers. This file is in Numeric format meaning every genotype is encoded by N = numeric genotypes ($ARGV[0]). Here **Homozygotes A1 = 11**, **Heterozygotes = 12** and **Homozygotes for A2 = 12**
+1. `Subset_Compiled_Genotypes_0924_V4_N.csv` --> This dataset contains the same individuals who were sequenced using ddRAD-seq plus some technical replicates. These individuals were used to test the GT-seq Primers. This file is in Numeric format meaning every genotype is encoded by N = numeric genotypes ($ARGV[0]). Here **Homozygotes A1 = 11**, **Heterozygotes = 12** and **Homozygotes for A2 = 12**
 2. `CleanSubset_Compiled_Genotypes_0924_V4_N.csv` --> "Validation" dataset used for LFDA model training. This dataset contais the same individuals in the same format as the Subset_Compiled_Genotypes_0924_V4_N.csv dataset but taxonomically misidentified and highly admixed individuals have been removed to use as a proper training dataset. 
 3.  `Compiled_Genotypes_0924_V4_C.csv` --> Read depth counts of genotypes for 329 loci across 163 individuals genotyped using GT-seq. Each row is an individual, and each column is a locus with its respective read depth. 
 4.  `Compiled_Genotypes_0924_V4_N.csv` --> Genotypes in Numeric format for 329 loci across 163 individuals genotyped using GT-seq. This file is in Numeric format meaning every genotype is encoded by N = numeric genotypes ($ARGV[0]). Here **Homozygotes A1 = 11**, **Heterozygotes = 12** and **Homozygotes for A2 = 12**
